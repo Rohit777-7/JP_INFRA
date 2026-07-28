@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-950: #0a1622;
+  --color-navy-900: #0f2138;
+  --color-navy-800: #142d4d;
+  --color-navy-700: #19497c;
+  --color-navy-600: #205a99;
+  --color-navy-500: #2b71bd;
+  --color-navy-100: #dce6f0;
+  --color-navy-50: #f2f6fa;
+
+  --color-brand-red: #ee3134;
+  --color-brand-red-dark: #c72225;
+
+  --color-sand-50: #faf8f4;
+  --color-sand-100: #f3efe6;
+  --color-sand-200: #e8e1d1;
+
+  --font-display: "Bebas Neue", "Arial Narrow", sans-serif;
+  --font-body: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Tailwind's preflight (via @import "tailwindcss" above) already zeroes
+   margin/padding and sets border-box — an unlayered reset here would win
+   over every layered utility class regardless of specificity, so we don't
+   duplicate it. */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-navy-950);
+  color: white;
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+::selection {
+  background: var(--color-brand-red);
+  color: white;
+}
+
+/* thin brand-colored scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-navy-950);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-navy-600);
+  border-radius: 4px;
+}
