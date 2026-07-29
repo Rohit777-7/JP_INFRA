@@ -1,6 +1,7 @@
 import { FaTimes } from "react-icons/fa";
 import Button from "../ui/Button";
 import { UNIT_STATUS, formatPrice } from "../../data/units";
+import { BRAND } from "../../utils/constants";
 import { cx } from "../../utils/helpers";
 
 function UnitDetail({ unit, plan, onClose }) {
@@ -59,7 +60,7 @@ function UnitDetail({ unit, plan, onClose }) {
         </dl>
 
         <Button
-          href={`tel:02250061683`}
+          href={`tel:${BRAND.phone.replace(/\s/g, "")}`}
           className="mt-8 w-full justify-center"
           disabled={unit.status === "sold"}
         >

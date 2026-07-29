@@ -31,7 +31,7 @@ function Gallery() {
           description="Exteriors, amenities, interiors & construction updates."
         />
 
-        <div className="flex min-h-0 flex-1 flex-col px-6 py-4 md:px-16">
+        <div className="mx-auto flex min-h-0 w-full max-w-[1800px] flex-1 flex-col px-6 py-4 md:px-16">
           <div className="flex shrink-0 flex-wrap gap-2">
             {GALLERY_CATEGORIES.map((cat) => (
               <button
@@ -50,7 +50,7 @@ function Gallery() {
           </div>
 
           <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
-            <div className="columns-2 gap-3 sm:columns-3 lg:columns-4 [&>*]:mb-3">
+            <div className="columns-2 gap-3 sm:columns-3 lg:columns-4 2xl:columns-5 4xl:columns-6 [&>*]:mb-3">
               {items.map((item) => (
                 <button
                   key={item.id}

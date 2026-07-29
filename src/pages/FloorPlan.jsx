@@ -61,9 +61,9 @@ function FloorPlan() {
           description="Compare plans side by side, filter units, click any unit for specs."
         />
 
-        <div className="grid min-h-0 flex-1 lg:grid-cols-2">
+        <div className="mx-auto grid min-h-0 w-full max-w-[1800px] flex-1 lg:grid-cols-2">
           {/* Compare & select */}
-          <div className="min-h-0 overflow-y-auto border-white/10 p-5 lg:border-r">
+          <div className="min-h-0 overflow-y-auto border-white/10 p-5 lg:border-r 3xl:p-8">
             <div className="flex flex-wrap gap-2">
               {TOWERS.map((tower) => (
                 <button

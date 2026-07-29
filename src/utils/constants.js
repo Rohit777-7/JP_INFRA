@@ -4,7 +4,7 @@ export const BRAND = {
   tagline: "Stand Tall",
   subline: "The Tallest Towers of Mira Road",
   address: "Off Kashimira Road, Mira Road (East), Mumbai - 401107",
-  phone: "022 5006 1683",
+  phone: "022 2789 0000",
   tollFree: "1800 313 9999",
   email: "sales@jpinfra.com",
   website: "www.jpinfra.com",

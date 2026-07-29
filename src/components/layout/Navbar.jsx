@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Logo from "../common/Logo";
 import Button from "../ui/Button";
 import MenuOverlay from "./MenuOverlay";
+import { BRAND } from "../../utils/constants";
 import { cx } from "../../utils/helpers";
 
 function Navbar() {
@@ -23,7 +24,7 @@ function Navbar() {
 
           <div className="flex items-center gap-4">
             <div className="hidden md:block">
-              <Button href="tel:02250061683" variant="primary" className="!px-5 !py-2.5 text-xs">
+              <Button href={`tel:${BRAND.phone.replace(/\s/g, "")}`} variant="primary" className="!px-5 !py-2.5 text-xs">
                 Enquire Now
               </Button>
             </div>

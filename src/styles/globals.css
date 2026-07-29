@@ -19,6 +19,14 @@
 
   --font-display: "Bebas Neue", "Arial Narrow", sans-serif;
   --font-body: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+
+  /* Tailwind's defaults already give us lg:1024px / xl:1280px / 2xl:1536px —
+     exactly the app's lg/xl/2xl breakpoints — so only 3xl and 4xl are new.
+     Breakpoints are min-width only; the heights in the spec (576/720/864/
+     1080/1440) are the matching 16:9 heights at each width for reference,
+     not separate queryable values. */
+  --breakpoint-3xl: 120rem; /* 1920px */
+  --breakpoint-4xl: 160rem; /* 2560px */
 }
 
 /* Tailwind's preflight (via @import "tailwindcss" above) already zeroes

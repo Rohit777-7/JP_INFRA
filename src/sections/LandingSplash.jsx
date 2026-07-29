@@ -38,16 +38,16 @@ function LandingSplash({ onEnter }) {
         </span>
       </div>
 
-      <div data-splash-in className="absolute bottom-10 left-6 md:left-16">
-        <p className="text-xs font-semibold tracking-[0.3em] text-brand-red uppercase">{BRAND.developer}</p>
-        <p className="font-display text-6xl text-white md:text-8xl">{BRAND.project}</p>
-        <p className="mt-1 text-sm text-white/60 md:text-base">{BRAND.subline}</p>
+      <div data-splash-in className="absolute bottom-10 left-6 md:left-16 3xl:bottom-14">
+        <p className="text-xs font-semibold tracking-[0.3em] text-brand-red uppercase 3xl:text-sm">{BRAND.developer}</p>
+        <p className="font-display text-6xl text-white md:text-8xl 3xl:text-9xl">{BRAND.project}</p>
+        <p className="mt-1 text-sm text-white/60 md:text-base 3xl:text-lg">{BRAND.subline}</p>
       </div>
 
       <button
         data-splash-in
         onClick={onEnter}
-        className="group absolute right-6 bottom-10 flex items-center gap-3 rounded-full bg-white px-6 py-3 text-xs font-semibold tracking-[0.15em] text-navy-900 uppercase shadow-lg transition-transform hover:scale-105 md:right-16"
+        className="group absolute right-6 bottom-10 flex items-center gap-3 rounded-full bg-white px-6 py-3 text-xs font-semibold tracking-[0.15em] text-navy-900 uppercase shadow-lg transition-transform hover:scale-105 md:right-16 3xl:bottom-14 3xl:px-8 3xl:py-4 3xl:text-sm"
       >
         Enter Experience
         <svg viewBox="0 0 24 24" className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" strokeWidth="2">

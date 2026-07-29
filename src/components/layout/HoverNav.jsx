@@ -53,13 +53,13 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
       <div className="relative z-10 flex h-full items-center px-6 pt-20 pb-6 md:px-16">
         <div
           data-menu-card
-          className="w-full max-w-md border border-white/40 bg-sand-50/95 shadow-2xl backdrop-blur-md"
+          className="w-full max-w-md border border-white/40 bg-sand-50/95 shadow-2xl backdrop-blur-md xl:max-w-lg 3xl:max-w-xl 4xl:max-w-2xl"
         >
-          <div className="flex items-center justify-between gap-4 border-b border-navy-900/10 px-7 py-6">
-            <Logo variant="mono" className="!text-navy-900" />
+          <div className="flex items-center justify-between gap-4 border-b border-navy-900/10 px-7 py-6 3xl:px-8 3xl:py-7">
+            <Logo />
             <div className="text-right">
-              <p className="font-display text-2xl leading-none text-navy-900">{BRAND.project}</p>
-              <p className="text-xs tracking-wide text-navy-900/50">{BRAND.subline}</p>
+              <p className="font-display text-2xl leading-none text-navy-900 3xl:text-3xl">{BRAND.project}</p>
+              <p className="text-xs tracking-wide text-navy-900/50 3xl:text-sm">{BRAND.subline}</p>
             </div>
           </div>
 
@@ -74,25 +74,25 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
                 onMouseEnter={() => setActiveIndex(i)}
                 className={() =>
                   cx(
-                    "group relative flex items-center justify-between gap-4 border-b border-navy-900/10 px-7 py-4 transition-colors last:border-b-0",
+                    "group relative flex items-center justify-between gap-4 border-b border-navy-900/10 px-7 py-4 transition-colors last:border-b-0 3xl:px-8 3xl:py-5",
                     i === activeIndex && "bg-brand-red/10"
                   )
                 }
               >
                 <div className="flex items-baseline gap-4">
-                  <span className="font-body text-xs text-navy-900/40 tabular-nums">
+                  <span className="font-body text-xs text-navy-900/40 tabular-nums 3xl:text-sm">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
                     <p
                       className={cx(
-                        "font-display text-2xl transition-colors",
+                        "font-display text-2xl transition-colors 3xl:text-3xl",
                         i === activeIndex ? "text-brand-red" : "text-navy-900"
                       )}
                     >
                       {link.label}
                     </p>
-                    <p className="text-xs text-navy-900/50">{link.tagline}</p>
+                    <p className="text-xs text-navy-900/50 3xl:text-sm">{link.tagline}</p>
                   </div>
                 </div>
                 <svg
@@ -120,9 +120,9 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
               ["Config", BRAND.configShort],
               ["Possession", BRAND.possession],
             ].map(([label, value]) => (
-              <div key={label} className="px-3 py-4 text-center">
-                <p className="text-[10px] tracking-[0.15em] text-navy-900/40 uppercase">{label}</p>
-                <p className="mt-1 text-sm font-semibold text-navy-900">{value}</p>
+              <div key={label} className="px-3 py-4 text-center 3xl:px-4 3xl:py-5">
+                <p className="text-[10px] tracking-[0.15em] text-navy-900/40 uppercase 3xl:text-xs">{label}</p>
+                <p className="mt-1 text-sm font-semibold text-navy-900 3xl:text-base">{value}</p>
               </div>
             ))}
           </div>

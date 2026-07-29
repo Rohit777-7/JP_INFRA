@@ -35,7 +35,7 @@ function Showcase() {
           description="Drag to orbit the towers in 3D — scaled to their real floor counts."
         />
 
-        <div className="grid min-h-0 flex-1 md:grid-cols-[1.4fr_1fr]">
+        <div className="mx-auto grid min-h-0 w-full max-w-[1800px] flex-1 md:grid-cols-[1.4fr_1fr]">
           <div className="relative min-h-0 border-white/10 md:border-r">
             <TowerViewer />
           </div>

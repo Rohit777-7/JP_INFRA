@@ -34,7 +34,7 @@ function Location() {
       <div className="flex h-screen flex-col overflow-hidden bg-navy-950">
         <CompactHeader eyebrow="Location" title="Right Where You Need To Be" description={BRAND.address} />
 
-        <div className="grid min-h-0 flex-1 gap-6 px-6 py-4 md:px-16 lg:grid-cols-[1.1fr_1fr]">
+        <div className="mx-auto grid min-h-0 w-full max-w-[1800px] flex-1 gap-6 px-6 py-4 md:px-16 lg:grid-cols-[1.1fr_1fr]">
           <div className="min-h-0 overflow-hidden border border-white/10">
             <iframe
               title="North Garden City location map"
