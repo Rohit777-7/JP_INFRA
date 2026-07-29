@@ -75,7 +75,7 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
                 className={() =>
                   cx(
                     "group relative flex items-center justify-between gap-4 border-b border-navy-900/10 px-7 py-4 transition-colors last:border-b-0 3xl:px-8 3xl:py-5",
-                    i === activeIndex && "bg-brand-red/10"
+                    i === activeIndex && "bg-navy-700/10"
                   )
                 }
               >
@@ -87,7 +87,7 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
                     <p
                       className={cx(
                         "font-display text-2xl transition-colors 3xl:text-3xl",
-                        i === activeIndex ? "text-brand-red" : "text-navy-900"
+                        i === activeIndex ? "text-navy-600" : "text-navy-900"
                       )}
                     >
                       {link.label}
@@ -99,7 +99,7 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
                   viewBox="0 0 24 24"
                   className={cx(
                     "h-4 w-4 shrink-0 stroke-current transition-transform duration-300 group-hover:translate-x-1",
-                    i === activeIndex ? "text-brand-red" : "text-navy-900/40"
+                    i === activeIndex ? "text-navy-600" : "text-navy-900/40"
                   )}
                   fill="none"
                   strokeWidth="1.5"
@@ -107,7 +107,7 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
                   <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 {i === activeIndex && (
-                  <span className="absolute bottom-0 left-0 h-0.5 w-full bg-brand-red" />
+                  <span className="absolute bottom-0 left-0 h-0.5 w-full bg-navy-600" />
                 )}
               </NavLink>
             ))}
