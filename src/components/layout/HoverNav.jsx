@@ -27,7 +27,7 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
         <button
           onClick={onBack}
           aria-label="Back to landing"
-          className="absolute top-16 right-6 z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-navy-900 shadow-lg backdrop-blur-sm transition-colors hover:bg-white md:top-20 md:right-16"
+          className="absolute top-24 right-6 z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-navy-900 shadow-lg backdrop-blur-sm transition-colors hover:bg-white md:top-28 md:right-16"
         >
           <FaHome className="h-4 w-4" />
         </button>

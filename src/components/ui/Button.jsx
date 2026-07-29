@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 import { cx } from "../../utils/helpers";
 
 const VARIANTS = {
-  primary: "bg-brand-red text-white hover:bg-brand-red-dark",
+  primary: "bg-navy-700 text-white hover:bg-navy-600",
   outline: "border border-white/40 text-white hover:bg-white/10",
-  ghost: "text-white hover:text-brand-red",
+  ghost: "text-white hover:text-navy-100",
 };
 
 function Button({ children, variant = "primary", to, href, className = "", ...rest }) {
