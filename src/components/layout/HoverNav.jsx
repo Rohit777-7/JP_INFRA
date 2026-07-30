@@ -5,7 +5,33 @@ import Logo from "../common/Logo";
 import { NAV_LINKS, BRAND } from "../../utils/constants";
 import { TOWERS } from "../../data/floors";
 import { cx } from "../../utils/helpers";
+import { useMouse } from "../../hooks/useMouse";
+import { useDeviceTier } from "../../hooks/useDeviceTier";
 import HoverPreview from "./HoverPreviews";
+
+// Wraps just the nav card (not the rest of HoverNav — the live preview
+// behind it, e.g. the ShowcasePreview 3D canvas, shouldn't re-render on
+// every pointer move) so the card tilts slightly toward the cursor for a
+// soft premium depth feel. Skipped for prefers-reduced-motion.
+function TiltCard({ children, className, ...rest }) {
+  const { x, y } = useMouse();
+  const { prefersReducedMotion } = useDeviceTier();
+  const rotateX = prefersReducedMotion ? 0 : -y * 4;
+  const rotateY = prefersReducedMotion ? 0 : x * 4;
+
+  return (
+    <div
+      className={className}
+      style={{
+        transform: `perspective(1400px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`,
+        transition: "transform 300ms ease-out",
+      }}
+      {...rest}
+    >
+      {children}
+    </div>
+  );
+}
 
 // Shared visual for the hover-preview navigation: hovering a link shows that
 // page's actual content full-bleed behind the card — real gallery photos,
@@ -51,7 +77,7 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
       </div>
 
       <div className="relative z-10 flex h-full items-center px-6 pt-20 pb-6 md:px-16">
-        <div
+        <TiltCard
           data-menu-card
           className="w-full max-w-md border border-white/40 bg-sand-50/95 shadow-2xl backdrop-blur-md xl:max-w-lg 3xl:max-w-xl 4xl:max-w-2xl"
         >
@@ -85,6 +111,7 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
                   </span>
                   <div>
                     <p
+                      data-row-title
                       className={cx(
                         "font-display text-2xl transition-colors 3xl:text-3xl",
                         i === activeIndex ? "text-navy-600" : "text-navy-900"
@@ -106,9 +133,12 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
                 >
                   <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                {i === activeIndex && (
-                  <span className="absolute bottom-0 left-0 h-0.5 w-full bg-navy-600" />
-                )}
+                <span
+                  className={cx(
+                    "absolute bottom-0 left-0 h-0.5 w-full origin-left bg-navy-600 transition-transform duration-300 ease-out",
+                    i === activeIndex ? "scale-x-100" : "scale-x-0"
+                  )}
+                />
               </NavLink>
             ))}
           </nav>
@@ -126,7 +156,7 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
               </div>
             ))}
           </div>
-        </div>
+        </TiltCard>
       </div>
     </div>
   );

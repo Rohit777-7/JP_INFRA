@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useGsap } from "../../hooks/useAnimation";
 import HoverNav from "./HoverNav";
 import { cx } from "../../utils/helpers";
@@ -11,6 +11,11 @@ import { cx } from "../../utils/helpers";
 // than mounting on open and unmounting after a fade-out — that avoids the
 // whole "two renders to get a real transition frame" dance entirely.
 function MenuOverlay({ open, onClose }) {
+  // Distinguishes "user just closed the menu" from "this is the initial
+  // mount, which happens to start closed" — only the former should play the
+  // reverse-stagger close animation.
+  const hasOpenedOnce = useRef(false);
+
   useEffect(() => {
     document.body.dataset.menuOpen = open ? "true" : "";
     document.body.style.overflow = open ? "hidden" : "";
@@ -30,21 +35,41 @@ function MenuOverlay({ open, onClose }) {
 
   const scope = useGsap(
     (gsap, root) => {
-      if (!open) return;
-      gsap.from(root.querySelectorAll("[data-menu-row]"), {
-        x: -24,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.06,
-        ease: "power3.out",
-        delay: 0.15,
-      });
-      gsap.from(root.querySelector("[data-menu-card]"), {
-        opacity: 0,
-        y: 16,
-        duration: 0.5,
-        ease: "power3.out",
-      });
+      const rows = root.querySelectorAll("[data-menu-row]");
+      const titles = root.querySelectorAll("[data-row-title]");
+      const card = root.querySelector("[data-menu-card]");
+
+      if (open) {
+        hasOpenedOnce.current = true;
+
+        gsap.fromTo(
+          rows,
+          { x: -24, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.5, stagger: 0.06, ease: "power3.out", delay: 0.15 }
+        );
+        // Row titles wipe in left-to-right on top of the row's own fade —
+        // a classic text-reveal instead of the title just fading with everything else.
+        gsap.fromTo(
+          titles,
+          { clipPath: "inset(0 100% 0 0)" },
+          { clipPath: "inset(0 0% 0 0)", duration: 0.6, stagger: 0.06, ease: "power3.out", delay: 0.2 }
+        );
+        gsap.fromTo(card, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" });
+      } else if (hasOpenedOnce.current) {
+        // Choreographed close: rows cascade back out in reverse order
+        // (last row first) instead of the whole panel just flatly fading.
+        // Kept fast enough (stagger + duration well under 300ms) to fully
+        // play out inside the wrapper's own opacity fade below, rather
+        // than getting cut off mid-cascade.
+        gsap.to(rows, {
+          x: -24,
+          opacity: 0,
+          duration: 0.22,
+          stagger: { each: 0.015, from: "end" },
+          ease: "power2.in",
+        });
+        gsap.to(card, { opacity: 0, y: 16, duration: 0.25, ease: "power2.in" });
+      }
     },
     [open]
   );

@@ -3,6 +3,7 @@ import { FaTrain, FaGraduationCap, FaHospital, FaShoppingBag, FaBriefcase, FaMap
 import Layout from "../components/layout/Layout";
 import FooterBar from "../components/layout/FooterBar";
 import CompactHeader from "../components/common/CompactHeader";
+import LocationMap from "../components/location/LocationMap";
 import { cx } from "../utils/helpers";
 import { LOCATION_CATEGORIES, NEARBY_PLACES, SITE_COORDINATES } from "../data/location";
 import { BRAND } from "../utils/constants";
@@ -14,12 +15,6 @@ const CATEGORY_ICONS = {
   Shopping: FaShoppingBag,
   Business: FaBriefcase,
 };
-
-function mapEmbedUrl({ lat, lng }) {
-  const delta = 0.012;
-  const bbox = [lng - delta, lat - delta, lng + delta, lat + delta].join(",");
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
-}
 
 function Location() {
   const [category, setCategory] = useState("All");
@@ -36,12 +31,7 @@ function Location() {
 
         <div className="mx-auto grid min-h-0 w-full max-w-[1800px] flex-1 gap-6 px-6 py-4 md:px-16 lg:grid-cols-[1.1fr_1fr]">
           <div className="min-h-0 overflow-hidden border border-white/10">
-            <iframe
-              title="North Garden City location map"
-              src={mapEmbedUrl(SITE_COORDINATES)}
-              className="h-full w-full grayscale-[20%]"
-              loading="lazy"
-            />
+            <LocationMap coordinates={SITE_COORDINATES} />
           </div>
 
           <div className="flex min-h-0 flex-col">

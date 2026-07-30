@@ -5,14 +5,26 @@ import CompactHeader from "../components/common/CompactHeader";
 import { cx } from "../utils/helpers";
 import { GALLERY_CATEGORIES, GALLERY_ITEMS } from "../data/gallery";
 
+const THUMBS_PER_PAGE = 6; // 2 cols x 3 rows — fixed so the page never scrolls
+
 function Gallery() {
   const [category, setCategory] = useState("All");
-  const [active, setActive] = useState(null);
+  const [featuredId, setFeaturedId] = useState(GALLERY_ITEMS[0]?.id);
+  const [page, setPage] = useState(0);
+  const [active, setActive] = useState(null); // fullscreen lightbox item
 
   const items = useMemo(
     () => (category === "All" ? GALLERY_ITEMS : GALLERY_ITEMS.filter((i) => i.category === category)),
     [category]
   );
+
+  // Category change can leave featuredId/page pointing past the new,
+  // smaller item set — derive safe values during render instead of
+  // resetting state in an effect (which would cost an extra render pass).
+  const featured = items.find((i) => i.id === featuredId) ?? items[0];
+  const totalPages = Math.max(1, Math.ceil(items.length / THUMBS_PER_PAGE));
+  const safePage = Math.min(page, totalPages - 1);
+  const pageItems = items.slice(safePage * THUMBS_PER_PAGE, safePage * THUMBS_PER_PAGE + THUMBS_PER_PAGE);
 
   const activeIndex = active ? items.findIndex((i) => i.id === active.id) : -1;
 
@@ -49,28 +61,67 @@ function Gallery() {
             ))}
           </div>
 
-          <div className="mt-4 min-h-0 flex-1 overflow-y-auto">
-            <div className="columns-2 gap-3 sm:columns-3 lg:columns-4 2xl:columns-5 4xl:columns-6 [&>*]:mb-3">
-              {items.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setActive(item)}
-                  className="group relative block w-full overflow-hidden break-inside-avoid"
-                >
-                  <img
-                    src={item.src}
-                    alt={item.title}
-                    loading="lazy"
-                    className="w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-transparent to-transparent p-3 opacity-0 transition-opacity group-hover:opacity-100">
-                    <div className="text-left">
-                      <p className="text-xs font-semibold text-white">{item.title}</p>
-                      <p className="text-[10px] tracking-wide text-white/60 uppercase">{item.category}</p>
-                    </div>
+          <div className="mt-4 grid min-h-0 flex-1 gap-3 md:grid-cols-[1fr_320px]">
+            {featured && (
+              <button
+                onClick={() => setActive(featured)}
+                className="group relative min-h-0 overflow-hidden"
+                aria-label={`View ${featured.title} fullscreen`}
+              >
+                <img
+                  src={featured.src}
+                  alt={featured.title}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-transparent to-transparent p-4">
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-white">{featured.title}</p>
+                    <p className="text-[10px] tracking-[0.15em] text-white/60 uppercase">{featured.category}</p>
                   </div>
-                </button>
-              ))}
+                </div>
+                <span className="absolute top-3 right-3 rounded-full bg-black/50 px-3 py-1 text-[10px] tracking-[0.15em] text-white uppercase opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                  View Fullscreen
+                </span>
+              </button>
+            )}
+
+            <div className="flex min-h-0 flex-col gap-2">
+              <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-3 gap-2">
+                {pageItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setFeaturedId(item.id)}
+                    className={cx(
+                      "relative min-h-0 overflow-hidden border-2 transition-colors",
+                      item.id === featured?.id ? "border-brand-red" : "border-transparent"
+                    )}
+                  >
+                    <img src={item.src} alt={item.title} loading="lazy" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+
+              {totalPages > 1 && (
+                <div className="flex shrink-0 items-center justify-between text-white">
+                  <button
+                    onClick={() => setPage((safePage - 1 + totalPages) % totalPages)}
+                    aria-label="Previous thumbnails"
+                    className="flex h-8 w-8 items-center justify-center border border-navy-900/20 text-navy-900/70 transition-colors hover:border-navy-900 hover:text-navy-900"
+                  >
+                    &#8249;
+                  </button>
+                  <span className="text-[11px] tracking-[0.15em] text-navy-900/50 uppercase">
+                    {safePage + 1} / {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setPage((safePage + 1) % totalPages)}
+                    aria-label="Next thumbnails"
+                    className="flex h-8 w-8 items-center justify-center border border-navy-900/20 text-navy-900/70 transition-colors hover:border-navy-900 hover:text-navy-900"
+                  >
+                    &#8250;
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

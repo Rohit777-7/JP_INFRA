@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 
 const RED = "#ee3134";
 
@@ -9,7 +10,20 @@ function seededRandom(seed) {
   return x - Math.floor(x);
 }
 
-function Tower({ position, width, depth, height, floors, color }) {
+// twinkle is tier-gated by the caller (TowerViewer) — off on low tier since
+// it touches every window mesh's material every frame.
+function Tower({ position, width, depth, height, floors, color, twinkle = false }) {
+  const lightRefs = useRef([]);
+
+  useFrame(({ clock }) => {
+    if (!twinkle) return;
+    const t = clock.elapsedTime;
+    lightRefs.current.forEach((mesh, i) => {
+      if (!mesh) return;
+      mesh.material.opacity = 0.82 + 0.18 * Math.sin(t * 0.6 + i * 1.7);
+    });
+  });
+
   const lights = useMemo(() => {
     const arr = [];
     const cols = 4;
@@ -30,7 +44,13 @@ function Tower({ position, width, depth, height, floors, color }) {
     <group position={position}>
       <mesh position={[0, height / 2, 0]} castShadow receiveShadow>
         <boxGeometry args={[width, height, depth]} />
-        <meshStandardMaterial color={color} roughness={0.55} metalness={0.25} />
+        <meshPhysicalMaterial
+          color={color}
+          roughness={0.4}
+          metalness={0.2}
+          clearcoat={0.5}
+          clearcoatRoughness={0.2}
+        />
       </mesh>
 
       <mesh position={[0, height / 2, 0]}>
@@ -39,9 +59,9 @@ function Tower({ position, width, depth, height, floors, color }) {
       </mesh>
 
       {lights.map(([x, y, z], i) => (
-        <mesh key={i} position={[x, y + height / 2, z]}>
+        <mesh key={i} ref={(el) => (lightRefs.current[i] = el)} position={[x, y + height / 2, z]}>
           <planeGeometry args={[width / 10, height / floors / 2.6]} />
-          <meshBasicMaterial color={i % 5 === 0 ? RED : "#ffd98a"} toneMapped={false} />
+          <meshBasicMaterial color={i % 5 === 0 ? RED : "#ffd98a"} toneMapped={false} transparent opacity={0.9} />
         </mesh>
       ))}
     </group>
