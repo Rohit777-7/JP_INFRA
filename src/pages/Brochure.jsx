@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FaDownload } from "react-icons/fa";
 import Layout from "../components/layout/Layout";
 import FooterBar from "../components/layout/FooterBar";
+import UtilityBar from "../components/layout/UtilityBar";
 import CompactHeader from "../components/common/CompactHeader";
 import Button from "../components/ui/Button";
 import { BRAND } from "../utils/constants";
@@ -21,14 +22,14 @@ function Brochure() {
 
   return (
     <Layout>
-      <div className="flex h-screen flex-col overflow-hidden bg-navy-50">
+      <div className="relative flex h-screen flex-col overflow-hidden bg-navy-50">
         <CompactHeader
           eyebrow="Brochure"
           title="The Full Story, On Paper"
           description="Floor plans, specifications, amenities & pricing."
         />
 
-        <div className="flex min-h-0 flex-1 items-center overflow-y-auto px-6 py-4 md:px-16">
+        <div className="flex min-h-0 flex-1 items-center overflow-y-auto px-6 py-4 pb-20 md:px-16">
           <div className="mx-auto grid w-full max-w-6xl gap-8 md:grid-cols-2 md:items-center">
             <div className="flex justify-center gap-6 [perspective:1200px]">
               <div className="w-40 -rotate-6 bg-navy-700 p-5 text-white shadow-2xl transition-transform duration-500 hover:rotate-0 sm:w-48">
@@ -82,6 +83,7 @@ function Brochure() {
           </div>
         </div>
 
+        <UtilityBar position="bottom-20 left-6 md:left-16" />
         <FooterBar />
       </div>
     </Layout>

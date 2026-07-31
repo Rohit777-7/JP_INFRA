@@ -1,13 +1,22 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { FaHome } from "react-icons/fa";
-import Logo from "../common/Logo";
+import { FaHome, FaCubes, FaImages, FaThLarge, FaMapMarkerAlt, FaFileAlt } from "react-icons/fa";
+import Button from "../ui/Button";
+import UtilityBar from "./UtilityBar";
 import { NAV_LINKS, BRAND } from "../../utils/constants";
-import { TOWERS } from "../../data/floors";
 import { cx } from "../../utils/helpers";
 import { useMouse } from "../../hooks/useMouse";
 import { useDeviceTier } from "../../hooks/useDeviceTier";
 import HoverPreview from "./HoverPreviews";
+
+const ICONS = {
+  "/": FaHome,
+  "/showcase": FaCubes,
+  "/gallery": FaImages,
+  "/floor-plan": FaThLarge,
+  "/location": FaMapMarkerAlt,
+  "/brochure": FaFileAlt,
+};
 
 // Wraps just the nav card (not the rest of HoverNav — the live preview
 // behind it, e.g. the ShowcasePreview 3D canvas, shouldn't re-render on
@@ -79,85 +88,51 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
       <div className="relative z-10 flex h-full items-center px-6 pt-20 pb-6 md:px-16">
         <TiltCard
           data-menu-card
-          className="w-full max-w-md border border-white/40 bg-sand-50/95 shadow-2xl backdrop-blur-md xl:max-w-lg 3xl:max-w-xl 4xl:max-w-2xl"
+          className="w-72 border border-navy-900/10 bg-sand-50/95 shadow-2xl backdrop-blur-md sm:w-80 3xl:w-96"
         >
-          <div className="flex items-center justify-between gap-4 border-b border-navy-900/10 px-7 py-6 3xl:px-8 3xl:py-7">
-            <Logo />
-            <div className="text-right">
-              <p className="font-display text-2xl leading-none text-navy-900 3xl:text-3xl">{BRAND.project}</p>
-              <p className="text-xs tracking-wide text-navy-900/50 3xl:text-sm">{BRAND.subline}</p>
-            </div>
-          </div>
-
-          <nav>
-            {NAV_LINKS.map((link, i) => (
-              <NavLink
-                key={link.path}
-                to={link.path}
-                data-menu-row
-                tabIndex={interactive ? 0 : -1}
-                onClick={onNavigate}
-                onMouseEnter={() => setActiveIndex(i)}
-                className={() =>
-                  cx(
-                    "group relative flex items-center justify-between gap-4 border-b border-navy-900/10 px-7 py-4 transition-colors last:border-b-0 3xl:px-8 3xl:py-5",
-                    i === activeIndex && "bg-navy-700/10"
-                  )
-                }
-              >
-                <div className="flex items-baseline gap-4">
-                  <span className="font-body text-xs text-navy-900/40 tabular-nums 3xl:text-sm">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <p
-                      data-row-title
-                      className={cx(
-                        "font-display text-2xl transition-colors 3xl:text-3xl",
-                        i === activeIndex ? "text-navy-600" : "text-navy-900"
-                      )}
-                    >
-                      {link.label}
-                    </p>
-                    <p className="text-xs text-navy-900/50 3xl:text-sm">{link.tagline}</p>
-                  </div>
-                </div>
-                <svg
-                  viewBox="0 0 24 24"
-                  className={cx(
-                    "h-4 w-4 shrink-0 stroke-current transition-transform duration-300 group-hover:translate-x-1",
-                    i === activeIndex ? "text-navy-600" : "text-navy-900/40"
-                  )}
-                  fill="none"
-                  strokeWidth="1.5"
+          <nav className="py-2">
+            {NAV_LINKS.map((link, i) => {
+              const Icon = ICONS[link.path] ?? FaHome;
+              const active = i === activeIndex;
+              return (
+                <NavLink
+                  key={link.path}
+                  to={link.path}
+                  data-menu-row
+                  tabIndex={interactive ? 0 : -1}
+                  onClick={onNavigate}
+                  onMouseEnter={() => setActiveIndex(i)}
+                  className={() => cx("group flex items-center gap-3 px-4 py-2.5 transition-colors", active && "bg-navy-900/5")}
                 >
-                  <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span
-                  className={cx(
-                    "absolute bottom-0 left-0 h-0.5 w-full origin-left bg-navy-600 transition-transform duration-300 ease-out",
-                    i === activeIndex ? "scale-x-100" : "scale-x-0"
-                  )}
-                />
-              </NavLink>
-            ))}
+                  <span
+                    className={cx(
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors",
+                      active ? "bg-navy-700 text-white" : "bg-navy-900/5 text-navy-900/50 group-hover:text-navy-900"
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span
+                    data-row-title
+                    className={cx("flex-1 text-sm font-semibold tracking-wide", active ? "text-navy-900" : "text-navy-900/70")}
+                  >
+                    {link.label}
+                  </span>
+                  {active && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-navy-700" />}
+                </NavLink>
+              );
+            })}
           </nav>
 
-          <div className="grid grid-cols-4 divide-x divide-navy-900/10 border-t border-navy-900/10">
-            {[
-              ["Height", BRAND.heightApprox],
-              ["Levels", `${Math.max(...TOWERS.map((t) => t.totalFloors))}`],
-              ["Config", BRAND.configShort],
-              ["Possession", BRAND.possession],
-            ].map(([label, value]) => (
-              <div key={label} className="px-3 py-4 text-center 3xl:px-4 3xl:py-5">
-                <p className="text-[10px] tracking-[0.15em] text-navy-900/40 uppercase 3xl:text-xs">{label}</p>
-                <p className="mt-1 text-sm font-semibold text-navy-900 3xl:text-base">{value}</p>
-              </div>
-            ))}
+          <div className="border-t border-navy-900/10 p-3">
+            <Button href={`tel:${BRAND.phone.replace(/\s/g, "")}`} variant="primary" className="!w-full !py-2.5 text-xs">
+              Enquire Now
+            </Button>
           </div>
         </TiltCard>
       </div>
+
+      <UtilityBar />
     </div>
   );
 }

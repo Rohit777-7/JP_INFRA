@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { FaTrain, FaGraduationCap, FaHospital, FaShoppingBag, FaBriefcase, FaMapMarkedAlt } from "react-icons/fa";
 import Layout from "../components/layout/Layout";
 import FooterBar from "../components/layout/FooterBar";
+import UtilityBar from "../components/layout/UtilityBar";
 import CompactHeader from "../components/common/CompactHeader";
 import LocationMap from "../components/location/LocationMap";
 import { cx } from "../utils/helpers";
@@ -26,7 +27,7 @@ function Location() {
 
   return (
     <Layout>
-      <div className="flex h-screen flex-col overflow-hidden bg-navy-950">
+      <div className="relative flex h-screen flex-col overflow-hidden bg-navy-950">
         <CompactHeader eyebrow="Location" title="Right Where You Need To Be" description={BRAND.address} />
 
         <div className="mx-auto grid min-h-0 w-full max-w-[1800px] flex-1 gap-6 px-6 py-4 md:px-16 lg:grid-cols-[1.1fr_1fr]">
@@ -77,6 +78,7 @@ function Location() {
           </div>
         </div>
 
+        <UtilityBar position="bottom-20 left-6 md:left-16" />
         <FooterBar />
       </div>
     </Layout>

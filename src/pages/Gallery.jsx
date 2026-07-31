@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import Layout from "../components/layout/Layout";
 import FooterBar from "../components/layout/FooterBar";
+import UtilityBar from "../components/layout/UtilityBar";
 import CompactHeader from "../components/common/CompactHeader";
 import { cx } from "../utils/helpers";
 import { GALLERY_CATEGORIES, GALLERY_ITEMS } from "../data/gallery";
@@ -36,7 +37,7 @@ function Gallery() {
 
   return (
     <Layout>
-      <div className="flex h-screen flex-col overflow-hidden bg-navy-50">
+      <div className="relative flex h-screen flex-col overflow-hidden bg-navy-50">
         <CompactHeader
           eyebrow="Gallery"
           title="Renders & Reality"
@@ -126,6 +127,7 @@ function Gallery() {
           </div>
         </div>
 
+        <UtilityBar position="bottom-20 left-6 md:left-16" />
         <FooterBar />
       </div>
 

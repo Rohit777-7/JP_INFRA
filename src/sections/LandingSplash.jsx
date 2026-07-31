@@ -1,5 +1,6 @@
 import { useGsap } from "../hooks/useAnimation";
 import TowerViewer from "../three/TowerViewer";
+import UtilityBar from "../components/layout/UtilityBar";
 import { BRAND } from "../utils/constants";
 
 // The very first screen on Home — a live, drag-to-rotate 3D render of the
@@ -38,7 +39,7 @@ function LandingSplash({ onEnter }) {
         </span>
       </div>
 
-      <div data-splash-in className="absolute bottom-10 left-6 md:left-16 3xl:bottom-14">
+      <div data-splash-in className="absolute bottom-24 left-6 md:left-16 3xl:bottom-28">
         <p className="text-xs font-semibold tracking-[0.3em] text-brand-red uppercase 3xl:text-sm">{BRAND.developer}</p>
         <p className="font-display text-6xl text-white md:text-8xl 3xl:text-9xl">{BRAND.project}</p>
         <p className="mt-1 text-sm text-white/60 md:text-base 3xl:text-lg">{BRAND.subline}</p>
@@ -54,6 +55,8 @@ function LandingSplash({ onEnter }) {
           <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
+
+      <UtilityBar />
     </div>
   );
 }
