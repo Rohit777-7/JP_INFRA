@@ -17,7 +17,7 @@ function Navbar() {
           menuOpen ? "bg-navy-950/90 backdrop-blur-md shadow-lg shadow-black/20" : "bg-gradient-to-b from-black/60 to-transparent"
         )}
       >
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-10">
+         <div className="flex h-20 items-center justify-between px-6 md:px-16">
           <Link to="/" onClick={() => setMenuOpen(false)}>
             <Logo />
           </Link>

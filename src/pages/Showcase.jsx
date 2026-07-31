@@ -1,67 +1,75 @@
 import { useState } from "react";
-import { FaPlay, FaTimes } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaArrowLeft, FaPlay, FaTimes } from "react-icons/fa";
 import Layout from "../components/layout/Layout";
 import FooterBar from "../components/layout/FooterBar";
 import UtilityBar from "../components/layout/UtilityBar";
-import FrameOverlay from "../components/layout/FrameOverlay";
-import CompactHeader from "../components/common/CompactHeader";
-import TowerViewer from "../three/TowerViewer";
 import { SHOWCASE_VIDEOS } from "../data/videos";
 import { BRAND } from "../utils/constants";
+
+// Placeholder hero — swap for a real exterior photo of the project.
+const HERO_IMAGE = "https://picsum.photos/seed/jpi-showcase-hero/1920/1080";
 
 function Showcase() {
   const [activeVideo, setActiveVideo] = useState(null);
 
   return (
     <Layout>
-      <div className="relative flex h-screen flex-col bg-navy-950">
-        <CompactHeader
-          eyebrow="Showcase"
-          title="Experience the Skyline"
-          description="Drag to orbit the towers in 3D — scaled to their real floor counts."
-        />
+      <div className="relative flex h-screen flex-col overflow-hidden bg-navy-950">
+        <div className="relative min-h-0 flex-1">
+          <img src={HERO_IMAGE} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/50 to-navy-950/30" />
 
-        <div className="mx-auto grid min-h-0 w-full max-w-[1800px] flex-1 md:grid-cols-[1.4fr_1fr]">
-          <div className="relative min-h-0 border-white/10 md:border-r">
-            <TowerViewer />
+          <Link
+            to="/"
+            className="absolute top-24 left-6 z-20 flex items-center gap-2 rounded-full border border-white/15 bg-navy-950/60 px-4 py-2 text-xs font-semibold tracking-wide text-white uppercase backdrop-blur-sm transition-colors hover:bg-navy-950/80 md:top-28 md:left-16"
+          >
+            <FaArrowLeft className="h-3 w-3" /> Back
+          </Link>
+
+          <div className="absolute top-24 right-6 z-20 text-right md:top-28 md:right-16">
+            <p className="text-xs font-semibold tracking-[0.3em] text-brand-red uppercase">Project Showcase</p>
+            <p className="font-accent text-2xl text-white">{BRAND.project}</p>
           </div>
 
-          <div className="flex min-h-0 flex-col gap-3 overflow-y-auto p-5">
-            <div>
-              <p className="font-accent text-2xl text-brand-red">{BRAND.tagline}</p>
-              <h2 className="mt-1 text-2xl text-white">Showcase Videos</h2>
-              <p className="mt-1 text-xs text-white/50">
-                Explore the brand, project walkthrough, and location videos of {BRAND.project}.
-              </p>
-            </div>
+          <div className="absolute top-32 left-6 z-20 max-w-xl md:top-40 md:left-16">
+            <h1 className="font-accent text-4xl text-white md:text-5xl">Showcase Videos</h1>
+            <p className="mt-2 text-sm text-white/70">
+              Explore the brand, project walkthrough, and location videos of {BRAND.project}.
+            </p>
+          </div>
 
+         <div className="absolute inset-x-6 top-1/2 z-20 -translate-y-1/2 grid gap-6 md:inset-x-16 md:grid-cols-3">
             {SHOWCASE_VIDEOS.map((video) => (
-              <button
-                key={video.id}
-                type="button"
-                onClick={() => setActiveVideo(video)}
-                className="group flex min-h-0 flex-1 items-center gap-4 border border-white/10 bg-navy-900/60 p-3 text-left transition-colors hover:border-white/25"
-              >
-                <div className="relative h-16 w-20 shrink-0 overflow-hidden">
-                  <img src={video.poster} alt={video.title} className="h-full w-full object-cover" />
-                  <span className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 transition-opacity group-hover:opacity-100">
-                    <FaPlay className="h-3.5 w-3.5" />
+              <div key={video.id} className="relative">
+                <button
+                  type="button"
+                  onClick={() => setActiveVideo(video)}
+                  className="group relative flex h-48 w-full flex-col justify-end overflow-hidden rounded-xl border border-white/15 bg-navy-950/40 text-left backdrop-blur-sm transition-colors hover:border-white/30 md:h-56"
+                >
+                  <span className="absolute top-3 left-3 rounded-full bg-black/50 px-3 py-1 text-[10px] font-semibold tracking-widest text-white/90 uppercase">
+                    Tap to Open
                   </span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-white">{video.title}</p>
-                  <p className="mt-0.5 text-xs text-white/50">{video.description}</p>
-                </div>
-                <span className="hidden shrink-0 items-center gap-2 bg-brand-red px-4 py-2 text-[11px] font-semibold tracking-wide text-white uppercase transition-colors group-hover:bg-brand-red-dark sm:inline-flex">
-                  <FaPlay className="h-2.5 w-2.5" /> Watch
-                </span>
-              </button>
+                  <div className="bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <p className="text-sm font-semibold text-white">{video.title}</p>
+                    <p className="mt-0.5 text-xs text-white/70">{video.description}</p>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveVideo(video)}
+                  className="relative z-10 mx-auto mt-15 flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-red to-brand-red-dark px-6 py-2.5 text-[11px] font-semibold tracking-wide text-white uppercase shadow-lg transition-transform hover:scale-[1.03]"
+                >
+                  <FaPlay className="h-2.5 w-4.5" /> Watch Video
+                </button>
+              </div>
             ))}
           </div>
+
+          <UtilityBar position="bottom-6 left-6 md:left-16" />
         </div>
 
-        <FrameOverlay />
-        <UtilityBar position="bottom-20 left-6 md:left-16" />
         <FooterBar />
       </div>
 

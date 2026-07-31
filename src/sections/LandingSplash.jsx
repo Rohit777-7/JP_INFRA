@@ -41,7 +41,7 @@ function LandingSplash({ onEnter }) {
 
       <div data-splash-in className="absolute bottom-24 left-6 md:left-16 3xl:bottom-28">
         <p className="text-xs font-semibold tracking-[0.3em] text-brand-red uppercase 3xl:text-sm">{BRAND.developer}</p>
-        <p className="font-display text-6xl text-white md:text-8xl 3xl:text-9xl">{BRAND.project}</p>
+        <p className="font-display text-5xl text-white md:text-7xl 3xl:text-8xl">{BRAND.project}</p>
         <p className="mt-1 text-sm text-white/60 md:text-base 3xl:text-lg">{BRAND.subline}</p>
       </div>
 

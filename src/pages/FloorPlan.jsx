@@ -4,7 +4,6 @@ import { FaArrowLeft, FaBuilding, FaChevronDown, FaChevronUp, FaCompass } from "
 import Layout from "../components/layout/Layout";
 import FooterBar from "../components/layout/FooterBar";
 import UtilityBar from "../components/layout/UtilityBar";
-import FrameOverlay from "../components/layout/FrameOverlay";
 import FloorPlate from "../components/floorplan/FloorPlate";
 import UnitDetail from "../components/floorplan/UnitDetail";
 import { cx } from "../utils/helpers";
@@ -248,7 +247,6 @@ function FloorPlan() {
           <UtilityBar />
         </div>
 
-        <FrameOverlay />
         <FooterBar />
       </div>
 
