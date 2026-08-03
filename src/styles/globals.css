@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy-950: #0a1622;
-  --color-navy-900: #0f2138;
-  --color-navy-800: #142d4d;
-  --color-navy-700: #19497c;
-  --color-navy-600: #205a99;
-  --color-navy-500: #2b71bd;
+--color-navy-950: #0d2744;
+--color-navy-900: #12375d;
+--color-navy-800: #1b4f80;
+--color-navy-700: #296aa8;
+--color-navy-600: #4287cf;
+--color-navy-500: #63a7ef;
   --color-navy-100: #dce6f0;
   --color-navy-50: #f2f6fa;
 
@@ -19,7 +19,6 @@
 
   --font-display: "Bebas Neue", "Arial Narrow", sans-serif;
   --font-body: "Montserrat", "Helvetica Neue", Arial, sans-serif;
-  --font-accent: "Marck Script", cursive;
 
   /* Tailwind's defaults already give us lg:1024px / xl:1280px / 2xl:1536px —
      exactly the app's lg/xl/2xl breakpoints — so only 3xl and 4xl are new.
@@ -39,11 +38,13 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
-  background: var(--color-navy-950);
-  color: white;
-  font-family: var(--font-body);
-  overflow-x: hidden;
+body{
+    background:linear-gradient(
+        180deg,
+        #194a77 0%,
+        #12375d 40%,
+        #0d2744 100%
+    );
 }
 
 h1,
@@ -55,11 +56,6 @@ h4,
   letter-spacing: 0.02em;
   text-transform: uppercase;
   line-height: 1;
-}
-
-.font-accent {
-  font-family: var(--font-accent);
-  line-height: 1.2;
 }
 
 ::selection {

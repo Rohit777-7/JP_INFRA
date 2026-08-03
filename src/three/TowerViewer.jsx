@@ -1,6 +1,11 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls, ContactShadows, Environment, MeshReflectorMaterial } from "@react-three/drei";
+import {
+  OrbitControls,
+  ContactShadows,
+  Environment,
+  MeshReflectorMaterial,
+} from "@react-three/drei";
 import {
   EffectComposer,
   Bloom,
@@ -74,22 +79,36 @@ function TowerViewer({ quality }) {
     <Canvas
       shadows={highQuality}
       dpr={highQuality ? [1, 1.75] : [1, 1]}
-      camera={{ position: prefersReducedMotion ? INTRO_END_POS : INTRO_START_POS, fov: 40 }}
+      camera={{
+        position: prefersReducedMotion ? INTRO_END_POS : INTRO_START_POS,
+        fov: 40,
+      }}
     >
-      <color attach="background" args={["#0f2138"]} />
-      <fog attach="fog" args={["#0f2138", 15, 34]} />
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[6, 10, 4]} intensity={0.85} castShadow />
-      <pointLight position={[-6, 4, -4]} intensity={0.35} color="#2b71bd" />
+      <color attach="background" args={["#12375d"]} />
+      <fog attach="fog" args={["#6d89aa", 18, 45]} />
+      <ambientLight intensity={0.7} />
+      <directionalLight position={[8, 12, 6]} intensity={1.5} castShadow />
+      <pointLight position={[-6, 6, -6]} intensity={0.9} color="#67b6ff" />
       {/* Warm rim/kicker light from behind the towers — cool navy key light
           in front, warm gold edge light behind, the classic two-tone
           premium-photography contrast. Cheap (no shadow), runs on both tiers. */}
       <pointLight position={[-5, 7, -9]} intensity={0.45} color="#ffb27a" />
 
-      {!prefersReducedMotion && <CameraIntro controlsRef={controlsRef} onComplete={() => setAutoRotate(true)} />}
+      {!prefersReducedMotion && (
+        <CameraIntro
+          controlsRef={controlsRef}
+          onComplete={() => setAutoRotate(true)}
+        />
+      )}
 
       <Suspense fallback={<SceneLoader />}>
-        {highQuality && <Environment preset="city" background={false} environmentIntensity={0.65} />}
+        {highQuality && (
+          <Environment
+            preset="sunset"
+            background={false}
+            environmentIntensity={1.2}
+          />
+        )}
 
         <Skyline />
 
@@ -105,7 +124,13 @@ function TowerViewer({ quality }) {
             twinkle={highQuality}
           />
         ))}
-        <ContactShadows position={[0, 0, 0]} opacity={0.5} scale={20} blur={2} far={10} />
+        <ContactShadows
+          position={[0, 0, 0]}
+          opacity={0.5}
+          scale={20}
+          blur={2}
+          far={10}
+        />
 
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.015, 0]}>
           <planeGeometry args={[40, 40]} />
@@ -113,14 +138,14 @@ function TowerViewer({ quality }) {
             <MeshReflectorMaterial
               resolution={1024}
               mixBlur={1}
-              mixStrength={40}
+              mixStrength={55}
               blur={[300, 100]}
               depthScale={1}
               minDepthThreshold={0.85}
               color="#0a1622"
               metalness={0.6}
               roughness={0.7}
-              mirror={0.35}
+              mirror={0.55}
             />
           ) : (
             <meshStandardMaterial color="#0a1622" roughness={1} />
@@ -141,12 +166,34 @@ function TowerViewer({ quality }) {
 
       {highQuality && (
         <EffectComposer multisampling={4} enableNormalPass>
-          <SSAO radius={0.15} intensity={20} luminanceInfluence={0.4} color="#000814" />
-          <DepthOfField worldFocusDistance={13} worldFocusRange={9} bokehScale={2} />
-          <Bloom intensity={0.6} luminanceThreshold={0.2} luminanceSmoothing={0.35} mipmapBlur />
-          <ChromaticAberration offset={[0.0006, 0.0006]} radialModulation={false} modulationOffset={0} />
-          <Noise premultiply blendFunction={BlendFunction.SOFT_LIGHT} opacity={0.15} />
-          <Vignette eskil={false} offset={0.15} darkness={0.9} />
+          <SSAO
+            radius={0.15}
+            intensity={20}
+            luminanceInfluence={0.4}
+            color="#000814"
+          />
+          <DepthOfField
+            worldFocusDistance={13}
+            worldFocusRange={9}
+            bokehScale={2}
+          />
+          <Bloom
+            intensity={1}
+            luminanceThreshold={0.2}
+            luminanceSmoothing={0.35}
+            mipmapBlur
+          />
+          <ChromaticAberration
+            offset={[0.0006, 0.0006]}
+            radialModulation={false}
+            modulationOffset={0}
+          />
+          <Noise
+            premultiply
+            blendFunction={BlendFunction.SOFT_LIGHT}
+            opacity={0.15}
+          />
+          <Vignette eskil={false} offset={0.15} darkness={0.35} />
           <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
         </EffectComposer>
       )}

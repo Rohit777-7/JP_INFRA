@@ -5,7 +5,6 @@ import { FaArrowLeft, FaPlay, FaTimes } from "react-icons/fa";
 import Layout from "../components/layout/Layout";
 import FooterBar from "../components/layout/FooterBar";
 import UtilityBar from "../components/layout/UtilityBar";
-
 import { SHOWCASE_VIDEOS } from "../data/videos";
 import { BRAND } from "../utils/constants";
 
@@ -13,37 +12,42 @@ function Showcase() {
   const [activeVideo, setActiveVideo] = useState(null);
 
   return (
-    <Layout>
-      <div className="relative flex h-screen flex-col overflow-hidden bg-navy-950">
-        <div className="relative min-h-0 flex-1">
-          {/* Back button */}
-          <Link
-            to="/"
-            className="absolute top-20 left-4 z-20 flex items-center gap-2 rounded-full border border-white/15 bg-navy-950/60 px-4 py-2 text-[11px] font-semibold tracking-wider text-white uppercase backdrop-blur-sm transition-colors hover:bg-navy-950/80 lg:top-24 lg:left-8 xl:top-28 xl:left-12 2xl:top-32 2xl:left-16 3xl:top-36 3xl:left-20 4xl:top-40 4xl:left-28"
-          >
-            <FaArrowLeft className="h-3 w-3" />
-            Back
-          </Link>
+    <Layout hideNavbar>
+      <div className="flex h-screen flex-col overflow-hidden bg-navy-950">
+        <div className="flex flex-1 flex-col justify-between gap-4 px-4 pt-4 pb-14 lg:gap-5 lg:px-8 lg:pt-6 lg:pb-16 xl:gap-6 xl:px-12 xl:pt-8 xl:pb-16 2xl:gap-7 2xl:px-16 2xl:pt-10 2xl:pb-20 3xl:gap-8 3xl:px-20 3xl:pt-12 3xl:pb-20 4xl:gap-10 4xl:px-28 4xl:pt-14 4xl:pb-24">
+          {/* Top row: back button + project showcase label */}
+          <div className="flex items-start justify-between gap-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 rounded-full border border-white/15 bg-navy-950/60 px-4 py-2 text-[11px] font-semibold tracking-wider text-white uppercase backdrop-blur-sm transition-colors hover:bg-navy-950/80"
+            >
+              <FaArrowLeft className="h-3 w-3" />
+              Back
+            </Link>
 
-          {/* Project name */}
-          <div className="absolute top-20 right-4 z-20 text-right lg:top-24 lg:right-8 xl:top-28 xl:right-12 2xl:top-32 2xl:right-16 3xl:top-36 3xl:right-20 4xl:top-40 4xl:right-28">
-            <p className="text-[10px] font-semibold tracking-[0.35em] text-brand-red uppercase lg:text-xs">Project Showcase</p>
-            <p className="mt-1 font-accent text-xl lg:text-2xl xl:text-3xl 2xl:text-3xl 3xl:text-4xl">{BRAND.project}</p>
+            <div className="text-right">
+              <p className="text-[10px] font-semibold tracking-[0.35em] text-brand-red uppercase lg:text-xs">
+                Project Showcase
+              </p>
+              <p className="font-display mt-1 text-xl text-white lg:text-2xl xl:text-3xl 2xl:text-3xl 3xl:text-4xl">
+                {BRAND.project}
+              </p>
+            </div>
           </div>
 
-          {/* Heading + video grid, vertically centered in the space between the
-              corner badges above and the UtilityBar below */}
-          <div className="absolute inset-x-4 top-36 bottom-20 z-10 flex flex-col justify-center gap-4 lg:inset-x-8 lg:top-40 lg:bottom-20 lg:gap-5 xl:inset-x-12 xl:top-44 xl:bottom-24 xl:gap-6 2xl:inset-x-16 2xl:top-48 2xl:bottom-24 2xl:gap-7 3xl:inset-x-20 3xl:top-52 3xl:bottom-28 3xl:gap-8 4xl:inset-x-28 4xl:top-56 4xl:bottom-32 4xl:gap-10">
+          {/* Heading + video grid, centered in the remaining space */}
+          <div className="flex min-h-0 flex-1 flex-col justify-center gap-4 lg:gap-5 xl:gap-6 2xl:gap-7 3xl:gap-8 4xl:gap-10">
             <div className="max-w-2xl">
               <h1 className="font-display text-2xl text-white uppercase lg:text-3xl xl:text-4xl 2xl:text-5xl 3xl:text-6xl 4xl:text-7xl">
                 Showcase Videos
               </h1>
-              <p className="mt-4 text-xs text-white/70 lg:text-sm xl:text-base 2xl:text-lg 3xl:text-lg 4xl:text-xl">
-                Explore the brand, project walkthrough, and location videos of {BRAND.project}.
+              <p className="mt-2 text-xs text-white/70 lg:text-sm xl:text-base 2xl:text-lg 3xl:text-lg 4xl:text-xl">
+                Explore the brand, project walkthrough, and location videos of{" "}
+                {BRAND.project}.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-5 xl:gap-6 2xl:gap-8 3xl:gap-9 4xl:gap-12">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5 xl:gap-6 2xl:gap-8 3xl:gap-9 4xl:gap-12">
               {SHOWCASE_VIDEOS.map((video) => (
                 <div key={video.id} className="flex flex-col items-center">
                   <button
@@ -70,15 +74,19 @@ function Showcase() {
                     </div>
 
                     <div className="relative bg-gradient-to-t from-black/80 to-transparent p-3 lg:p-4">
-                      <p className="text-xs font-semibold text-white lg:text-sm xl:text-base">{video.title}</p>
-                      <p className="mt-0.5 text-[11px] text-white/70 lg:text-xs">{video.description}</p>
+                      <p className="text-xs font-semibold text-white lg:text-sm xl:text-base">
+                        {video.title}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-white/70 lg:text-xs">
+                        {video.description}
+                      </p>
                     </div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setActiveVideo(video)}
-                    className="mt-4 flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-red to-brand-red-dark px-6 py-2.5 text-[11px] font-semibold tracking-wide text-white uppercase shadow-lg transition-transform hover:scale-105 lg:mt-5 lg:px-7 lg:py-3 xl:mt-6 xl:px-8 2xl:mt-7 2xl:px-9 2xl:py-3.5 3xl:mt-8 3xl:px-10 3xl:py-4"
+                    className="mt-4 flex items-center gap-2 rounded-full bg-brand-red px-6 py-2.5 text-[11px] font-semibold tracking-wide text-white uppercase shadow-lg transition-transform hover:scale-105 lg:mt-5 lg:px-7 lg:py-3 xl:mt-6 xl:px-8 2xl:mt-7 2xl:px-9 2xl:py-3.5 3xl:mt-8 3xl:px-10 3xl:py-4"
                   >
                     <FaPlay className="h-3 w-3" />
                     Watch Video
@@ -88,7 +96,10 @@ function Showcase() {
             </div>
           </div>
 
-          <UtilityBar position="bottom-4 left-4 lg:bottom-6 lg:left-8 xl:bottom-8 xl:left-12 2xl:bottom-10 2xl:left-16 3xl:bottom-12 3xl:left-20 4xl:bottom-14 4xl:left-28" />
+          {/* Reserved row for the UtilityBar, sitting just above the footer */}
+          <div className="relative h-16 shrink-0 mt-6">
+           <UtilityBar position="bottom-[-20px] left-0" />
+          </div>
         </div>
 
         <FooterBar />
@@ -107,24 +118,35 @@ function Showcase() {
             <FaTimes className="text-xl" />
           </button>
 
-          <div className="w-full max-w-sm lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl 3xl:max-w-7xl" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="flex w-[92vw] flex-col items-center lg:w-[78vw] xl:w-[76vw] 2xl:w-[74vw] 3xl:w-[72vw] 4xl:w-[70vw]"
+            onClick={(e) => e.stopPropagation()}
+          >
             {activeVideo.videoUrl ? (
               <video
                 src={activeVideo.videoUrl}
                 controls
                 autoPlay
-                className="w-full rounded-3xl border border-white/10 shadow-2xl"
+                className="aspect-video w-full max-h-[58vh] rounded-3xl border border-white/10 object-cover shadow-2xl lg:max-h-[54vh] xl:max-h-[56vh] 2xl:max-h-[60vh] 3xl:max-h-[64vh] 4xl:max-h-[68vh]"
               />
             ) : (
-              <div className="flex aspect-video w-full flex-col items-center justify-center gap-5 rounded-3xl border border-white/10 bg-navy-900">
-                <FaPlay className="text-5xl text-white/40" />
-                <p className="text-lg tracking-[0.3em] text-white/60 uppercase lg:text-xl xl:text-2xl">Video Coming Soon</p>
+              <div className="relative aspect-video w-full max-h-[58vh] overflow-hidden rounded-3xl border border-white/10 bg-navy-900 lg:max-h-[54vh] xl:max-h-[56vh] 2xl:max-h-[60vh] 3xl:max-h-[64vh] 4xl:max-h-[68vh]">
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <FaPlay className="mb-6 text-5xl text-white/40 lg:text-6xl xl:text-7xl" />
+                  <p className="text-center text-base tracking-[0.35em] text-white/60 uppercase lg:text-xl xl:text-2xl 2xl:text-3xl">
+                    Video Coming Soon
+                  </p>
+                </div>
               </div>
             )}
 
-            <div className="mt-8 text-center text-white">
-              <h2 className="text-3xl uppercase lg:text-4xl xl:text-5xl">{activeVideo.title}</h2>
-              <p className="mx-auto mt-4 max-w-3xl text-sm text-white/70 lg:text-base xl:text-lg">{activeVideo.description}</p>
+            <div className="mt-4 text-center text-white lg:mt-5 xl:mt-6">
+              <h2 className="text-3xl uppercase lg:text-4xl xl:text-5xl">
+                {activeVideo.title}
+              </h2>
+              <p className="mx-auto mt-4 max-w-3xl text-sm text-white/70 lg:text-base xl:text-lg">
+                {activeVideo.description}
+              </p>
             </div>
           </div>
         </div>
