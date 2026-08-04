@@ -74,3 +74,65 @@ h4,
   background: var(--color-navy-600);
   border-radius: 4px;
 }
+
+/* Location page map markers pop in on mount instead of just appearing —
+   a fresh divIcon (see LocationMap.jsx) means a fresh DOM node each time,
+   so this replays whenever a marker mounts or its active state changes. */
+@keyframes location-marker-pop {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.location-marker-pop {
+  animation: location-marker-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.location-marker-pop:hover {
+  transform: scale(1.35);
+}
+
+/* Cross-fade between the light/dark Carto basemaps (LocationMap.jsx keeps
+   both TileLayers mounted and toggles opacity 0/1 rather than swapping the
+   url on one layer, which would just hard-cut). */
+.location-tile-layer {
+  transition: opacity 0.6s ease-in-out;
+}
+
+/* "Marching ants" on the 1/3/5km distance rings. */
+@keyframes location-ring-dash {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+.location-ring-dash {
+  animation: location-ring-dash 1.4s linear infinite;
+}
+
+.leaflet-control-attribution {
+  font-size: 9px;
+  background: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(4px);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 16px;
+  background: rgba(10, 22, 34, 0.95);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+.leaflet-popup-content {
+  margin: 12px 14px;
+}
+.leaflet-popup-tip {
+  background: rgba(10, 22, 34, 0.95);
+}
+.leaflet-container a.leaflet-popup-close-button {
+  color: rgba(255, 255, 255, 0.6);
+}
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: #fff;
+}
