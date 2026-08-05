@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { FaArrowLeft, FaBuilding, FaChevronDown, FaChevronUp, FaCompass } from "react-icons/fa";
+import { FaBuilding, FaChevronDown, FaChevronUp, FaCompass } from "react-icons/fa";
 import Layout from "../components/layout/Layout";
 import FooterBar from "../components/layout/FooterBar";
 import UtilityBar from "../components/layout/UtilityBar";
+import BackButton from "../components/common/BackButton";
 import FloorPlate from "../components/floorplan/FloorPlate";
 import UnitDetail from "../components/floorplan/UnitDetail";
+import { useGsap } from "../hooks/useAnimation";
 import { cx } from "../utils/helpers";
 import { TOWERS, FLOOR_PLANS, getFloorPlansByTower } from "../data/floors";
 import { BHK_TYPES, UNIT_STATUS, filterUnits, formatPrice, planStats } from "../data/units";
@@ -55,21 +56,25 @@ function FloorPlan() {
     [towerId, filters]
   );
 
+  const scope = useGsap((gsap, root) => {
+    const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
+    tl.from(root.querySelector("[data-floorplan-back]"), { opacity: 0, x: -20, duration: 0.6 })
+      .from(root.querySelector("[data-floorplan-plate]"), { opacity: 0, y: 28, scale: 0.97, filter: "blur(8px)", duration: 0.9 }, "-=0.35")
+      .from(root.querySelector("[data-floorplan-panel]"), { opacity: 0, x: 60, duration: 0.8, ease: "power4.out" }, "-=0.7");
+  }, []);
+
   return (
     <Layout>
-      <div className="relative flex h-screen flex-col overflow-hidden bg-navy-950">
-        <Link
-          to="/"
-          aria-label="Back to home"
-          className="absolute top-24 left-6 z-30 flex h-11 w-11 items-center justify-center rounded-lg border border-white/20 bg-navy-950/80 text-white shadow-lg backdrop-blur-sm transition-colors hover:border-white/40 hover:bg-navy-900 md:top-28 md:left-16"
-        >
-          <FaArrowLeft className="h-4 w-4" />
-        </Link>
+      <div ref={scope} className="relative flex h-screen flex-col overflow-hidden bg-navy-950">
+        <BackButton
+          data-floorplan-back
+          className="absolute top-24 left-6 z-30 md:top-28 md:left-16"
+        />
 
         <div className="relative min-h-0 flex-1">
           {/* Plan display */}
           <div className="flex h-full min-h-0 flex-col items-center justify-start gap-4 overflow-y-auto p-6 pt-20 pr-6 pb-24 md:pr-[23rem]">
-            <div className={cx("grid w-full max-w-3xl gap-6", activePlans.length === 2 ? "sm:grid-cols-2" : "")}>
+            <div data-floorplan-plate className={cx("grid w-full max-w-3xl gap-6", activePlans.length === 2 ? "sm:grid-cols-2" : "")}>
               {activePlans.map((plan) => (
                 <FloorPlate key={plan.id} plan={plan} selectedUnitId={selection?.unit?.id} onSelectUnit={handleSelectUnit} />
               ))}
@@ -107,7 +112,7 @@ function FloorPlan() {
           </div>
 
           {/* Floating select panel */}
-          <div className="absolute top-24 right-6 bottom-6 z-20 flex w-80 flex-col items-center md:top-28 3xl:w-96">
+          <div data-floorplan-panel className="absolute top-24 right-6 bottom-6 z-20 flex w-80 flex-col items-center md:top-28 3xl:w-96">
             <button
               type="button"
               onClick={() => setPanelOpen((v) => !v)}
@@ -135,17 +140,20 @@ function FloorPlan() {
             )}
 
             {panelOpen && (
-              <div className="flex w-full min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/10 bg-navy-950/90 shadow-2xl backdrop-blur-md">
+              <div className="glass-panel flex w-full min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/10 bg-navy-950/90 shadow-2xl backdrop-blur-md">
                 <div className="min-h-0 flex-1 overflow-y-auto p-5">
                   <p className="text-center text-[10px] tracking-[0.25em] text-white/40 uppercase">Select Tower</p>
                   <div className="mt-2 flex justify-center gap-2">
                     {TOWERS.map((t) => (
                       <button
                         key={t.id}
+                        data-cursor="view"
                         onClick={() => selectTower(t.id)}
                         className={cx(
-                          "flex-1 rounded-full border px-2 py-2 text-xs font-semibold uppercase transition-colors",
-                          towerId === t.id ? "border-brand-red bg-brand-red text-white" : "border-white/15 text-white/60 hover:border-white/30"
+                          "flex-1 rounded-full border px-2 py-2 text-xs font-semibold uppercase transition-all duration-300 hover:-translate-y-0.5",
+                          towerId === t.id
+                            ? "border-brand-red bg-brand-red text-white shadow-[0_8px_20px_-6px_rgba(238,49,52,0.6)]"
+                            : "border-white/15 text-white/60 hover:border-white/30 hover:text-white"
                         )}
                       >
                         {t.name.split(" — ")[0]}

@@ -15,6 +15,9 @@ import UtilityBar from "../components/layout/UtilityBar";
 import CompactHeader from "../components/common/CompactHeader";
 import { useGsap } from "../hooks/useAnimation";
 import { useDeviceTier } from "../hooks/useDeviceTier";
+import { useMouse } from "../hooks/useMouse";
+import { useMagnetic } from "../hooks/useMagnetic";
+import { EASE } from "../utils/easing";
 import { cx } from "../utils/helpers";
 import { GALLERY_CATEGORIES, GALLERY_ITEMS } from "../data/gallery";
 
@@ -37,6 +40,20 @@ function counterLabel(n) {
 // and inside the fullscreen portal (full viewport, letterboxed), so the two
 // views share one set of controls instead of duplicating them.
 function MediaStage({ item, total, index, direction, transition, fit, fullscreen, onNext, onPrev, onToggleFullscreen }) {
+  // Subtle depth parallax on the floating chrome (title/counter badges) —
+  // deliberately NOT applied to the slide image itself, since that's a
+  // motion.img whose transform is already driven by drag/enter-exit
+  // variants; a second transform source on the same node would fight it.
+  const { x, y } = useMouse();
+  const badgeStyle = (amount, centerX = false) => ({
+    transform: `translate3d(calc(${centerX ? "-50% + " : ""}${x * amount}px), ${y * amount}px, 0)`,
+    transition: "transform 0.4s cubic-bezier(0.22,1,0.36,1)",
+  });
+
+  const fullscreenRef = useMagnetic({ strength: 0.4, scale: 1.1 });
+  const prevRef = useMagnetic({ strength: 0.4, scale: 1.12 });
+  const nextRef = useMagnetic({ strength: 0.4, scale: 1.12 });
+
   return (
     <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl bg-black/40">
       <AnimatePresence custom={direction} initial={false}>
@@ -65,15 +82,22 @@ function MediaStage({ item, total, index, direction, transition, fit, fullscreen
         />
       </AnimatePresence>
 
-      <span className="absolute top-3 left-3 z-10 max-w-[70%] truncate rounded-full bg-black/40 px-3 py-1 text-[10px] font-semibold tracking-widest text-white/80 uppercase backdrop-blur-sm">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+
+      <span
+        style={badgeStyle(-4)}
+        className="absolute top-3 left-3 z-10 max-w-[70%] truncate rounded-full bg-black/40 px-3 py-1 text-[10px] font-semibold tracking-widest text-white/80 uppercase backdrop-blur-sm"
+      >
         {item.title}
       </span>
 
       <button
+        ref={fullscreenRef}
         type="button"
+        data-cursor="view"
         onClick={onToggleFullscreen}
         aria-label={fullscreen ? "Exit fullscreen" : "View fullscreen"}
-        className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/80 backdrop-blur-sm transition-colors hover:bg-black/60 hover:text-white"
+        className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/80 backdrop-blur-sm transition-colors will-change-transform hover:border-brand-red/50 hover:bg-black/60 hover:text-white"
       >
         {fullscreen ? <FaCompress className="h-3.5 w-3.5" /> : <FaExpand className="h-3.5 w-3.5" />}
       </button>
@@ -81,25 +105,32 @@ function MediaStage({ item, total, index, direction, transition, fit, fullscreen
       {total > 1 && (
         <>
           <button
+            ref={prevRef}
             type="button"
+            data-cursor="view"
             onClick={onPrev}
             aria-label="Previous image"
-            className="absolute top-1/2 left-3 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/80 backdrop-blur-sm transition-colors hover:bg-black/60 hover:text-white"
+            className="absolute top-1/2 left-3 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/80 backdrop-blur-sm transition-colors will-change-transform hover:border-brand-red/50 hover:bg-black/60 hover:text-white"
           >
             <FaChevronLeft className="h-3.5 w-3.5" />
           </button>
           <button
+            ref={nextRef}
             type="button"
+            data-cursor="view"
             onClick={onNext}
             aria-label="Next image"
-            className="absolute top-1/2 right-3 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/80 backdrop-blur-sm transition-colors hover:bg-black/60 hover:text-white"
+            className="absolute top-1/2 right-3 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/80 backdrop-blur-sm transition-colors will-change-transform hover:border-brand-red/50 hover:bg-black/60 hover:text-white"
           >
             <FaChevronRight className="h-3.5 w-3.5" />
           </button>
         </>
       )}
 
-      <span className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-black/40 px-3 py-1 text-[11px] font-semibold tracking-widest text-white/80 backdrop-blur-sm">
+      <span
+        style={badgeStyle(3, true)}
+        className="absolute bottom-3 left-1/2 z-10 rounded-full bg-black/40 px-3 py-1 text-[11px] font-semibold tracking-widest text-white/80 backdrop-blur-sm"
+      >
         {counterLabel(index + 1)} / {counterLabel(total)}
       </span>
     </div>
@@ -114,16 +145,25 @@ function ThumbStrip({ items, activeId, onSelect, thumbRefs }) {
           key={item.id}
           ref={(el) => (thumbRefs.current[item.id] = el)}
           type="button"
+          data-cursor="view"
           onClick={() => onSelect(i)}
-          whileHover={{ scale: 1.06 }}
+          whileHover={{ scale: 1.06, y: -3 }}
           whileTap={{ scale: 0.97 }}
+          transition={{ duration: 0.3, ease: EASE.power3Out }}
           aria-label={`Go to ${item.title}`}
           className={cx(
-            "h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-colors",
-            item.id === activeId ? "border-brand-red" : "border-white/10 hover:border-white/30"
+            "sheen group relative h-14 w-20 shrink-0 overflow-hidden rounded-lg border-2 transition-[border-color,box-shadow] duration-300",
+            item.id === activeId
+              ? "border-brand-red shadow-[0_0_18px_rgba(238,49,52,0.55)]"
+              : "border-white/10 hover:border-white/30"
           )}
         >
-          <img src={item.src} alt={item.title} loading="lazy" className="h-full w-full object-cover" />
+          <img
+            src={item.src}
+            alt={item.title}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-125"
+          />
         </motion.button>
       ))}
     </div>
@@ -189,11 +229,12 @@ function Gallery() {
 
   const scope = useGsap((gsap, root) => {
     gsap.from(root.querySelectorAll("[data-gallery-in]"), {
-      y: 16,
+      y: 24,
       opacity: 0,
-      duration: 0.6,
-      ease: "power3.out",
-      stagger: 0.08,
+      filter: "blur(6px)",
+      duration: 0.8,
+      ease: "expo.out",
+      stagger: 0.1,
     });
   }, []);
 
@@ -272,11 +313,12 @@ function Gallery() {
                 <button
                   key={cat}
                   type="button"
+                  data-cursor="view"
                   onClick={() => setCategory(cat)}
                   className={cx(
-                    "rounded-full border px-4 py-1.5 text-xs font-semibold tracking-[0.15em] uppercase transition-colors",
+                    "relative overflow-hidden rounded-full border px-4 py-1.5 text-xs font-semibold tracking-[0.15em] uppercase transition-all duration-300 hover:-translate-y-0.5",
                     category === cat
-                      ? "border-brand-red bg-brand-red text-white"
+                      ? "border-brand-red bg-brand-red text-white shadow-[0_8px_24px_-6px_rgba(238,49,52,0.6)]"
                       : "border-white/15 text-white/60 hover:border-white/30 hover:text-white"
                   )}
                 >

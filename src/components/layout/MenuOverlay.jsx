@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useGsap } from "../../hooks/useAnimation";
+import { useMenuOverlay } from "../../context/MenuOverlayContext";
 import HoverNav from "./HoverNav";
 import { cx } from "../../utils/helpers";
 
@@ -10,7 +11,12 @@ import { cx } from "../../utils/helpers";
 // Stays mounted at all times (just toggling opacity/pointer-events) rather
 // than mounting on open and unmounting after a fade-out — that avoids the
 // whole "two renders to get a real transition frame" dance entirely.
-function MenuOverlay({ open, onClose }) {
+//
+// Reads open/close from MenuOverlayContext rather than props — Layout
+// mounts this once per page regardless of whether that page shows Navbar
+// (hideNavbar), so every page's BackButton can open the same overlay.
+function MenuOverlay() {
+  const { open, closeMenu: onClose } = useMenuOverlay();
   // Distinguishes "user just closed the menu" from "this is the initial
   // mount, which happens to start closed" — only the former should play the
   // reverse-stagger close animation.
@@ -44,17 +50,21 @@ function MenuOverlay({ open, onClose }) {
 
         gsap.fromTo(
           rows,
-          { x: -24, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.5, stagger: 0.06, ease: "power3.out", delay: 0.15 }
+          { x: -32, opacity: 0, filter: "blur(6px)" },
+          { x: 0, opacity: 1, filter: "blur(0px)", duration: 0.7, stagger: 0.07, ease: "expo.out", delay: 0.15 }
         );
         // Row titles wipe in left-to-right on top of the row's own fade —
         // a classic text-reveal instead of the title just fading with everything else.
         gsap.fromTo(
           titles,
           { clipPath: "inset(0 100% 0 0)" },
-          { clipPath: "inset(0 0% 0 0)", duration: 0.6, stagger: 0.06, ease: "power3.out", delay: 0.2 }
+          { clipPath: "inset(0 0% 0 0)", duration: 0.75, stagger: 0.07, ease: "power4.out", delay: 0.2 }
         );
-        gsap.fromTo(card, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" });
+        gsap.fromTo(
+          card,
+          { opacity: 0, y: 24, scale: 0.97 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "expo.out" }
+        );
       } else if (hasOpenedOnce.current) {
         // Choreographed close: rows cascade back out in reverse order
         // (last row first) instead of the whole panel just flatly fading.

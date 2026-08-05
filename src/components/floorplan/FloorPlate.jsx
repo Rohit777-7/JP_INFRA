@@ -1,5 +1,8 @@
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { cx } from "../../utils/helpers";
-import { UNIT_STATUS } from "../../data/units";
+import { UNIT_STATUS, formatPrice } from "../../data/units";
+import { EASE } from "../../utils/easing";
 
 const BHK_FILL = {
   1: "rgba(43,113,189,0.35)",
@@ -9,6 +12,8 @@ const BHK_FILL = {
 };
 
 function FloorPlate({ plan, selectedUnitId, onSelectUnit, dimmed }) {
+  const [hoveredUnit, setHoveredUnit] = useState(null);
+
   if (!plan) return null;
 
   return (
@@ -18,14 +23,22 @@ function FloorPlate({ plan, selectedUnitId, onSelectUnit, dimmed }) {
         <p className="text-xs text-white/40">Floors {plan.floorRange[0]}–{plan.floorRange[1]}</p>
       </div>
 
-      <div className="relative aspect-[4/3] w-full border border-white/20 bg-navy-900/60">
+      <div
+        className="relative aspect-[4/3] w-full overflow-visible border border-white/20 bg-navy-900/60 transition-transform duration-700 ease-out hover:scale-[1.025]"
+        onMouseLeave={() => setHoveredUnit(null)}
+      >
         {plan.units.map((unit) => {
           const isSelected = unit.id === selectedUnitId;
+          const isSold = unit.status === "sold";
           return (
             <button
               key={unit.id}
               onClick={() => onSelectUnit(unit, plan)}
-              disabled={unit.status === "sold"}
+              onMouseEnter={() => setHoveredUnit(unit.id)}
+              onFocus={() => setHoveredUnit(unit.id)}
+              onBlur={() => setHoveredUnit((id) => (id === unit.id ? null : id))}
+              disabled={isSold}
+              data-cursor={isSold ? undefined : "view"}
               title={`Unit ${unit.unitNo} — ${unit.bhk} BHK`}
               style={{
                 left: `${unit.geo.x}%`,
@@ -35,9 +48,11 @@ function FloorPlate({ plan, selectedUnitId, onSelectUnit, dimmed }) {
                 backgroundColor: BHK_FILL[unit.bhk],
               }}
               className={cx(
-                "absolute flex flex-col items-center justify-center border text-[10px] font-semibold text-white transition-all sm:text-xs",
-                unit.status === "sold" ? "cursor-not-allowed border-white/10 opacity-40" : "cursor-pointer border-white/25 hover:border-brand-red hover:z-10 hover:scale-[1.03]",
-                isSelected && "border-brand-red ring-2 ring-brand-red z-10"
+                "absolute flex flex-col items-center justify-center border text-[10px] font-semibold text-white transition-all duration-300 sm:text-xs",
+                isSold
+                  ? "cursor-not-allowed border-white/10 opacity-40"
+                  : "hotspot-breathe cursor-pointer border-white/25 hover:z-10 hover:scale-[1.06] hover:border-brand-red hover:shadow-[0_0_22px_rgba(238,49,52,0.5)]",
+                isSelected && "border-brand-red ring-2 ring-brand-red z-10 shadow-[0_0_24px_rgba(238,49,52,0.55)]"
               )}
             >
               <span>{unit.unitNo}</span>
@@ -50,6 +65,31 @@ function FloorPlate({ plan, selectedUnitId, onSelectUnit, dimmed }) {
                   {UNIT_STATUS[unit.status].label}
                 </span>
               )}
+
+              <AnimatePresence>
+                {hoveredUnit === unit.id && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6, scale: 0.94 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.94 }}
+                    transition={{ duration: 0.22, ease: EASE.expoOut }}
+                    className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-max -translate-x-1/2 rounded-lg border border-white/15 bg-navy-950/95 px-3 py-2 text-left shadow-2xl backdrop-blur-md"
+                  >
+                    <p className="text-[11px] font-semibold text-white normal-case">
+                      Unit {unit.unitNo} · {unit.bhk} BHK
+                    </p>
+                    <p className="mt-0.5 text-[10px] text-white/50 normal-case">{unit.carpetArea} sq.ft.</p>
+                    <p
+                      className={cx(
+                        "mt-0.5 text-[11px] font-semibold normal-case",
+                        isSold ? "text-white/40" : "text-brand-red"
+                      )}
+                    >
+                      {formatPrice(unit.price)}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </button>
           );
         })}

@@ -21,6 +21,7 @@ import gsap from "gsap";
 import Tower from "./Tower";
 import Skyline from "./Skyline";
 import SceneLoader from "./SceneLoader";
+import Particles from "./Particles";
 import { TOWERS } from "../data/floors";
 import { useDeviceTier } from "../hooks/useDeviceTier";
 
@@ -112,6 +113,8 @@ function TowerViewer({ quality }) {
 
         <Skyline />
 
+        {highQuality && !prefersReducedMotion && <Particles />}
+
         {TOWERS.map((tower, i) => (
           <Tower
             key={tower.id}
@@ -156,7 +159,10 @@ function TowerViewer({ quality }) {
       <OrbitControls
         ref={controlsRef}
         autoRotate={autoRotate}
-        autoRotateSpeed={0.8}
+        autoRotateSpeed={0.6}
+        enableDamping
+        dampingFactor={0.06}
+        rotateSpeed={0.6}
         enablePan={false}
         target={[0, TARGET_Y, 0]}
         minDistance={5}

@@ -119,20 +119,133 @@ h4,
   backdrop-filter: blur(4px);
 }
 
+/* !important throughout, matching .leaflet-control-attribution above —
+   leaflet/dist/leaflet.css is imported inside LocationMap.jsx, so it lands
+   in the lazy-loaded Location route chunk and is injected into the
+   document AFTER this file. Without !important its own default white
+   background/dark text wins the tie (same specificity, later rule), which
+   left the popup showing white text on Leaflet's default white background. */
 .leaflet-popup-content-wrapper {
-  border-radius: 16px;
-  background: rgba(10, 22, 34, 0.95);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border-radius: 16px !important;
+  background: rgba(10, 22, 34, 0.95) !important;
+  color: #fff !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4) !important;
 }
 .leaflet-popup-content {
-  margin: 12px 14px;
+  margin: 12px 14px !important;
 }
 .leaflet-popup-tip {
-  background: rgba(10, 22, 34, 0.95);
+  background: rgba(10, 22, 34, 0.95) !important;
 }
 .leaflet-container a.leaflet-popup-close-button {
   color: rgba(255, 255, 255, 0.6);
 }
 .leaflet-container a.leaflet-popup-close-button:hover {
   color: #fff;
+}
+
+/* ---------------------------------------------------------------------
+   Premium animation-layer utilities (custom cursor, light-sweep hover,
+   marker/hotspot pulses, glass reflections). Purely additive — nothing
+   here changes layout, only decorates existing elements on hover/state.
+   --------------------------------------------------------------------- */
+
+/* CustomCursor.jsx toggles this on <html> only when the device has a fine
+   pointer and doesn't prefer reduced motion — native cursor stays put
+   everywhere else (touch devices, keyboard/reduced-motion users, and
+   inside cross-origin iframes, which never see this class anyway since
+   they're a separate document). */
+.custom-cursor-active,
+.custom-cursor-active * {
+  cursor: none !important;
+}
+
+/* Diagonal light-sweep on hover — add the `sheen` class alongside an
+   element's existing classes (gallery thumbnails, cards, buttons). The
+   element needs `position: relative; overflow: hidden` from its own
+   classes (already true everywhere this is applied). */
+.sheen {
+  isolation: isolate;
+}
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  left: -150%;
+  width: 60%;
+  background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  z-index: 1;
+}
+.sheen:hover::after {
+  left: 150%;
+}
+
+/* Slow, soft pulse ring for the currently-selected Location marker —
+   gentler and slower than Tailwind's default animate-ping so it reads as
+   "highlighted" rather than "urgent". */
+@keyframes location-active-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+.location-marker-active-ring {
+  animation: location-active-pulse 1.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+/* Soft breathing glow used on Floor Plan hotspots to invite interaction. */
+@keyframes hotspot-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(238, 49, 52, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(238, 49, 52, 0);
+  }
+}
+.hotspot-breathe {
+  animation: hotspot-breathe 2.6s ease-in-out infinite;
+}
+
+/* Thin top-edge highlight for glassy/backdrop-blur panels — a cheap CSS
+   stand-in for a "glass reflection" that costs nothing to render. */
+.glass-panel {
+  position: relative;
+}
+.glass-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  pointer-events: none;
+}
+
+/* Slow ambient scale/pan on background/preview imagery — reads as
+   "alive" without calling attention to itself. */
+@keyframes ken-burns {
+  0% {
+    transform: scale(1.02) translate(0, 0);
+  }
+  100% {
+    transform: scale(1.1) translate(-1%, -1%);
+  }
+}
+.ken-burns {
+  animation: ken-burns 18s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .location-marker-active-ring,
+  .hotspot-breathe,
+  .ken-burns {
+    animation: none;
+  }
 }

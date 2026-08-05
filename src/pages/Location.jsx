@@ -8,7 +8,11 @@ import LocationMap from "../components/location/LocationMap";
 import LocationSidebar from "../components/location/LocationSidebar";
 import { useGsap } from "../hooks/useAnimation";
 
-import { LOCATION_CATEGORIES, NEARBY_PLACES, SITE_COORDINATES } from "../data/location";
+import {
+  LOCATION_CATEGORIES,
+  NEARBY_PLACES,
+  SITE_COORDINATES,
+} from "../data/location";
 
 function Location() {
   const [category, setCategory] = useState("All");
@@ -34,14 +38,29 @@ function Location() {
   // category/theme/selection updates since those don't remount this page.
   const scope = useGsap((gsap, root) => {
     const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    tl.from(root.querySelector("[data-location-map]"), { opacity: 0, scale: 1.08, duration: 1.1 })
-      .from(root.querySelector("[data-location-sidebar]"), { opacity: 0, x: 120, duration: 0.9 }, "-=0.75")
-      .from(root.querySelectorAll("[data-location-in]"), { opacity: 0, y: 16, duration: 0.5, stagger: 0.06 }, "-=0.5");
+    tl.from(root.querySelector("[data-location-map]"), {
+      opacity: 0,
+      scale: 1.08,
+      duration: 1.1,
+    })
+      .from(
+        root.querySelector("[data-location-sidebar]"),
+        { opacity: 0, x: 120, duration: 0.9 },
+        "-=0.75",
+      )
+      .from(
+        root.querySelectorAll("[data-location-in]"),
+        { opacity: 0, y: 16, duration: 0.5, stagger: 0.06 },
+        "-=0.5",
+      );
   }, []);
 
   return (
     <Layout>
-      <div ref={scope} className="relative h-screen w-full overflow-hidden bg-navy-950">
+      <div
+        ref={scope}
+        className="relative h-screen w-full overflow-hidden bg-navy-950"
+      >
         <div data-location-map className="absolute inset-0">
           <ErrorBoundary>
             <LocationMap
@@ -66,7 +85,17 @@ function Location() {
           onThemeChange={setTheme}
         />
 
-        <UtilityBar position="bottom-14 left-4 lg:bottom-16 lg:left-8" />
+        <UtilityBar
+          position="
+    bottom-20 left-6
+    md:left-16
+    lg:bottom-20
+    xl:bottom-24
+    2xl:bottom-24
+    3xl:bottom-28
+    4xl:bottom-32
+  "
+        />
 
         <div className="absolute inset-x-0 bottom-0 z-40">
           <FooterBar />
