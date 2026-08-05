@@ -64,7 +64,15 @@ function CameraIntro({ controlsRef, onComplete }) {
 
 // quality, if passed, overrides the auto-detected device tier — unused
 // today but costs nothing to support, for a future manual quality toggle.
-function TowerViewer({ quality }) {
+//
+// paused stops the R3F render loop (frameloop="never") without unmounting
+// the Canvas — used by the Showcase hover-preview, which keeps this
+// mounted after its first hover instead of destroying/recreating the
+// WebGLRenderer on every hover in/out (repeated create/dispose of GL
+// contexts in quick succession was exhausting the browser's WebGL context
+// budget and surfacing as "Context Lost"). Pausing keeps the context alive
+// but idle while hidden, so there's no ongoing GPU cost either.
+function TowerViewer({ quality, paused = false }) {
   const { tier: autoTier, prefersReducedMotion } = useDeviceTier();
   const tier = quality ?? autoTier;
   const highQuality = tier === "high";
@@ -78,6 +86,7 @@ function TowerViewer({ quality }) {
 
   return (
     <Canvas
+      frameloop={paused ? "never" : "always"}
       shadows={highQuality}
       dpr={highQuality ? [1, 1.75] : [1, 1]}
       camera={{

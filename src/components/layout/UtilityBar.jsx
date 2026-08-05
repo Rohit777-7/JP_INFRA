@@ -12,6 +12,12 @@ import { EASE } from "../../utils/easing";
 // Used on Home/the hover-preview menu and on the Floor Plan page.
 function UtilityBar({
   position = "bottom-6 left-6 md:left-16 lg:bottom-5 lg:left-10 xl:bottom-6 xl:left-12 2xl:bottom-8 2xl:left-14 3xl:bottom-10 3xl:left-20 4xl:bottom-12 4xl:left-28",
+  // Optional: fires alongside the Home button's normal navigate-to-"/" —
+  // Home's inline HoverNav passes its onBack (return to the landing splash)
+  // here so this same button also resets that view, instead of needing a
+  // second dedicated "back" button elsewhere on the page. Every other page
+  // leaves this unset, so the Home button stays a plain link there.
+  onHomeClick,
 }) {
   const [muted, setMuted] = useState(true);
   const [infoOpen, setInfoOpen] = useState(false);
@@ -39,7 +45,7 @@ function UtilityBar({
 
   return (
     <div className={`absolute z-20 flex items-center gap-2 lg:gap-1.5 xl:gap-2 3xl:gap-2.5 4xl:gap-3 ${position}`}>
-      <Link to="/" aria-label="Home" data-cursor="view" className={buttonClass}>
+      <Link to="/" aria-label="Home" data-cursor="view" className={buttonClass} onClick={onHomeClick}>
         <FaHome className={iconClass} />
       </Link>
       <button

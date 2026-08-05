@@ -1,21 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  FaChevronLeft,
-  FaChevronRight,
-  FaExpand,
-  FaCompress,
-  FaTimes,
-  FaThLarge,
-  FaImages,
-} from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Layout from "../components/layout/Layout";
-import FooterBar from "../components/layout/FooterBar";
 import UtilityBar from "../components/layout/UtilityBar";
-import CompactHeader from "../components/common/CompactHeader";
+import BackButton from "../components/common/BackButton";
 import { useGsap } from "../hooks/useAnimation";
 import { useDeviceTier } from "../hooks/useDeviceTier";
-import { useMouse } from "../hooks/useMouse";
 import { useMagnetic } from "../hooks/useMagnetic";
 import { EASE } from "../utils/easing";
 import { cx } from "../utils/helpers";
@@ -23,45 +13,40 @@ import { GALLERY_CATEGORIES, GALLERY_ITEMS } from "../data/gallery";
 
 const SWIPE_THRESHOLD = 80;
 
-// Direction-aware slide: entering/exiting images pass on the same axis they
-// were navigated on, so Next always reads as a left-slide and Prev as a
-// right-slide regardless of which image is involved.
+// Opacity-only crossfade — deliberately NOT animating `x`/transform here.
+// This full-bleed image is large (up to ~2200px) and object-fit: cover'd
+// across the whole viewport; animating it via CSS transform triggered an
+// intermittent Chromium compositor bug where the image's raster tile
+// wouldn't fully repaint after the transform settled, leaving part of the
+// frame showing the page background underneath (reported as a "gap" whose
+// size varied unpredictably between navigations — a hallmark of a stale
+// GPU tile, not a CSS layout bug, which would clip a consistent amount
+// every time). Fading opacity alone never moves or resizes the element, so
+// there's no transform for the compositor to mishandle.
 const SLIDE_VARIANTS = {
-  enter: (dir) => ({ x: dir > 0 ? 48 : -48, opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit: (dir) => ({ x: dir > 0 ? -48 : 48, opacity: 0 }),
+  enter: { opacity: 0 },
+  center: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 function counterLabel(n) {
   return String(n).padStart(2, "0");
 }
 
-// The big media panel — reused as-is inside the card (contained, cropped)
-// and inside the fullscreen portal (full viewport, letterboxed), so the two
-// views share one set of controls instead of duplicating them.
-function MediaStage({ item, total, index, direction, transition, fit, fullscreen, onNext, onPrev, onToggleFullscreen }) {
-  // Subtle depth parallax on the floating chrome (title/counter badges) —
-  // deliberately NOT applied to the slide image itself, since that's a
-  // motion.img whose transform is already driven by drag/enter-exit
-  // variants; a second transform source on the same node would fight it.
-  const { x, y } = useMouse();
-  const badgeStyle = (amount, centerX = false) => ({
-    transform: `translate3d(calc(${centerX ? "-50% + " : ""}${x * amount}px), ${y * amount}px, 0)`,
-    transition: "transform 0.4s cubic-bezier(0.22,1,0.36,1)",
-  });
-
-  const fullscreenRef = useMagnetic({ strength: 0.4, scale: 1.1 });
-  const prevRef = useMagnetic({ strength: 0.4, scale: 1.12 });
-  const nextRef = useMagnetic({ strength: 0.4, scale: 1.12 });
+// Full-bleed hero presentation — the image fills the entire stage
+// edge-to-edge (no card/border/padding around it), with title, counter,
+// and prev/next chrome floating directly over it.
+function MediaStage({ item, total, index, transition, onNext, onPrev }) {
+  const prevRef = useMagnetic({ strength: 0.3, scale: 1.08 });
+  const nextRef = useMagnetic({ strength: 0.3, scale: 1.08 });
 
   return (
-    <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl bg-black/40">
-      <AnimatePresence custom={direction} initial={false}>
+    <div className="relative h-full w-full overflow-hidden bg-black">
+      <AnimatePresence initial={false}>
         <motion.img
           key={item.id}
           src={item.src}
           alt={item.title}
-          custom={direction}
           variants={SLIDE_VARIANTS}
           initial="enter"
           animate="center"
@@ -75,32 +60,24 @@ function MediaStage({ item, total, index, direction, transition, fit, fullscreen
             else if (info.offset.x > SWIPE_THRESHOLD) onPrev();
           }}
           className={cx(
-            "absolute inset-0 h-full w-full",
-            total > 1 && "cursor-grab active:cursor-grabbing",
-            fit === "cover" ? "object-cover" : "object-contain"
+            "ken-burns absolute inset-0 h-full w-full object-cover",
+            total > 1 && "cursor-grab active:cursor-grabbing"
           )}
         />
       </AnimatePresence>
 
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+      {/* Top/bottom darkening so the title, counter and thumbnail strip stay
+          legible over any photo, without boxing the image in a card. */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent lg:h-36 3xl:h-44" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/60 to-transparent lg:h-48 3xl:h-56" />
 
-      <span
-        style={badgeStyle(-4)}
-        className="absolute top-3 left-3 z-10 max-w-[70%] truncate rounded-full bg-black/40 px-3 py-1 text-[10px] font-semibold tracking-widest text-white/80 uppercase backdrop-blur-sm"
-      >
+      <h2 className="font-display pointer-events-none absolute top-6 left-1/2 max-w-[80%] -translate-x-1/2 truncate text-center text-2xl tracking-wide text-white uppercase drop-shadow-lg lg:top-6 lg:text-2xl xl:top-8 xl:text-3xl 2xl:text-3xl 3xl:top-10 3xl:text-4xl 4xl:text-5xl">
         {item.title}
-      </span>
+      </h2>
 
-      <button
-        ref={fullscreenRef}
-        type="button"
-        data-cursor="view"
-        onClick={onToggleFullscreen}
-        aria-label={fullscreen ? "Exit fullscreen" : "View fullscreen"}
-        className="absolute top-3 right-3 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/80 backdrop-blur-sm transition-colors will-change-transform hover:border-brand-red/50 hover:bg-black/60 hover:text-white"
-      >
-        {fullscreen ? <FaCompress className="h-3.5 w-3.5" /> : <FaExpand className="h-3.5 w-3.5" />}
-      </button>
+      <span className="absolute top-6 right-6 z-10 text-xs font-semibold tracking-[0.2em] text-white/70 tabular-nums lg:top-6 lg:right-6 xl:top-8 xl:right-8 3xl:top-10 3xl:right-10 3xl:text-sm">
+        {counterLabel(index + 1)} / {counterLabel(total)}
+      </span>
 
       {total > 1 && (
         <>
@@ -110,9 +87,9 @@ function MediaStage({ item, total, index, direction, transition, fit, fullscreen
             data-cursor="view"
             onClick={onPrev}
             aria-label="Previous image"
-            className="absolute top-1/2 left-3 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/80 backdrop-blur-sm transition-colors will-change-transform hover:border-brand-red/50 hover:bg-black/60 hover:text-white"
+            className="absolute top-1/2 left-4 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/30 text-white/80 backdrop-blur-sm transition-colors will-change-transform hover:border-brand-red/50 hover:bg-black/50 hover:text-white md:left-6 lg:h-11 lg:w-11 3xl:h-12 3xl:w-12"
           >
-            <FaChevronLeft className="h-3.5 w-3.5" />
+            <FaChevronLeft className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
           </button>
           <button
             ref={nextRef}
@@ -120,26 +97,19 @@ function MediaStage({ item, total, index, direction, transition, fit, fullscreen
             data-cursor="view"
             onClick={onNext}
             aria-label="Next image"
-            className="absolute top-1/2 right-3 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 bg-black/40 text-white/80 backdrop-blur-sm transition-colors will-change-transform hover:border-brand-red/50 hover:bg-black/60 hover:text-white"
+            className="absolute top-1/2 right-4 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/30 text-white/80 backdrop-blur-sm transition-colors will-change-transform hover:border-brand-red/50 hover:bg-black/50 hover:text-white md:right-6 lg:h-11 lg:w-11 3xl:h-12 3xl:w-12"
           >
-            <FaChevronRight className="h-3.5 w-3.5" />
+            <FaChevronRight className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
           </button>
         </>
       )}
-
-      <span
-        style={badgeStyle(3, true)}
-        className="absolute bottom-3 left-1/2 z-10 rounded-full bg-black/40 px-3 py-1 text-[11px] font-semibold tracking-widest text-white/80 backdrop-blur-sm"
-      >
-        {counterLabel(index + 1)} / {counterLabel(total)}
-      </span>
     </div>
   );
 }
 
-function ThumbStrip({ items, activeId, onSelect, thumbRefs }) {
+function ThumbStrip({ items, activeId, onSelect, thumbRefs, stripRef }) {
   return (
-    <div className="mt-3 flex shrink-0 gap-2 overflow-x-auto pb-1">
+    <div ref={stripRef} className="flex shrink-0 gap-2 overflow-x-auto pb-1">
       {items.map((item, i) => (
         <motion.button
           key={item.id}
@@ -170,62 +140,12 @@ function ThumbStrip({ items, activeId, onSelect, thumbRefs }) {
   );
 }
 
-// function GridView({ items, onOpen }) {
-//   return (
-//     <div className="grid flex-1 grid-cols-1 gap-6 overflow-y-auto p-2 md:grid-cols-2 xl:grid-cols-3">
-//       {items.map((item, index) => (
-//         <motion.button
-//           key={item.id}
-//           type="button"
-//           onClick={() => onOpen(index)}
-//           whileHover={{ y: -6 }}
-//           whileTap={{ scale: 0.98 }}
-//           className={`group overflow-hidden rounded-2xl border border-white/10 bg-[#0F1724] shadow-xl transition-all duration-500 hover:border-brand-red/40
-//             ${
-//               index === 0
-//                 ? "md:col-span-2 xl:col-span-2"
-//                 : ""
-//             }`}
-//         >
-//           <div
-//             className={`relative overflow-hidden ${
-//               index === 0 ? "h-[420px]" : "h-[280px]"
-//             }`}
-//           >
-//             <img
-//               src={item.src}
-//               alt={item.title}
-//               loading="lazy"
-//               className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
-//             />
-
-//             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-
-//             <div className="absolute bottom-0 left-0 w-full p-5">
-//               <p className="text-xl font-semibold text-white">
-//                 {item.title}
-//               </p>
-
-//               <p className="mt-2 text-[11px] uppercase tracking-[0.3em] text-brand-red">
-//                 {item.category}
-//               </p>
-//             </div>
-//           </div>
-//         </motion.button>
-//       ))}
-//     </div>
-//   );
-// }
-
-
 function Gallery() {
   const { prefersReducedMotion } = useDeviceTier();
   const [category, setCategory] = useState("All");
-  const [view, setView] = useState("slideshow"); // "slideshow" | "grid"
   const [index, setIndex] = useState(0);
-  const [direction, setDirection] = useState(1);
-  const [fullscreen, setFullscreen] = useState(false);
   const thumbRefs = useRef({});
+  const stripRef = useRef(null);
 
   const scope = useGsap((gsap, root) => {
     gsap.from(root.querySelectorAll("[data-gallery-in]"), {
@@ -249,175 +169,120 @@ function Gallery() {
   const safeIndex = items.length ? Math.min(index, items.length - 1) : -1;
   const current = safeIndex >= 0 ? items[safeIndex] : null;
 
+  // Full-bleed photos are only ever fetched on demand, so without this,
+  // clicking Next/Prev to an image the browser hasn't seen yet can show a
+  // moment of the navy background showing through the still-decoding
+  // portion of the frame before it finishes painting. Preloading the
+  // neighbours as soon as `current` settles means they're already decoded
+  // by the time a click actually navigates to them.
+  useEffect(() => {
+    if (safeIndex < 0 || items.length < 2) return;
+    const neighbours = [1, -1, 2, -2]
+      .map((offset) => items[(safeIndex + offset + items.length) % items.length])
+      .filter(Boolean);
+    const preloaded = neighbours.map((item) => {
+      const img = new Image();
+      img.src = item.src;
+      return img;
+    });
+    return () => {
+      preloaded.forEach((img) => {
+        img.src = "";
+      });
+    };
+  }, [safeIndex, items]);
+
   function nextImage() {
     if (items.length < 2) return;
-    setDirection(1);
     setIndex((safeIndex + 1) % items.length);
   }
 
   function prevImage() {
     if (items.length < 2) return;
-    setDirection(-1);
     setIndex((safeIndex - 1 + items.length) % items.length);
   }
 
   function goTo(i) {
-    setDirection(i > safeIndex ? 1 : -1);
     setIndex(i);
   }
 
-  function openFullscreen(i) {
-    setDirection(1);
-    setIndex(i);
-    setView("slideshow");
-    setFullscreen(true);
-  }
-
-  // Arrow-key stepping only makes sense once there's a single "current"
-  // image to step through — i.e. slideshow view or the fullscreen portal.
   useEffect(() => {
-    if (view !== "slideshow" && !fullscreen) return;
     function onKey(e) {
       if (e.key === "ArrowRight") nextImage();
       else if (e.key === "ArrowLeft") prevImage();
-      else if (e.key === "Escape") setFullscreen(false);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, fullscreen, safeIndex, items.length]);
+  }, [safeIndex, items.length]);
 
+  // Deliberately NOT scrollIntoView() — it can walk up and scroll ancestor
+  // containers (up to and including the document itself) to bring the
+  // target into view, which is exactly the kind of thing that can shift
+  // the whole page rather than just this strip, especially with several
+  // `absolute`-positioned layers between the strip and the document. This
+  // computes the target scrollLeft directly and sets it on the strip's own
+  // ref only — that container's scroll position is the one and only thing
+  // that changes.
   useEffect(() => {
     if (!current) return;
-    thumbRefs.current[current.id]?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    const container = stripRef.current;
+    const activeThumb = thumbRefs.current[current.id];
+    if (!container || !activeThumb) return;
+    const target = activeThumb.offsetLeft - (container.clientWidth - activeThumb.clientWidth) / 2;
+    container.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
   }, [current]);
 
   const transition = prefersReducedMotion ? { duration: 0 } : { duration: 0.45, ease: [0.22, 1, 0.36, 1] };
 
   return (
-    <Layout>
-      <div className="relative flex h-screen flex-col overflow-hidden bg-navy-950">
-        {/* <CompactHeader
-          eyebrow="Gallery"
-          title="Renders & Reality"
-          description="Exteriors, amenities, interiors & construction updates."
-        /> */}
+    <Layout hideNavbar>
+      <div ref={scope} className="relative h-screen w-full overflow-hidden bg-navy-950">
+        <div className="absolute inset-0">
+          {!current ? (
+            <p className="absolute inset-0 m-auto h-fit text-center text-sm text-white/40">No images in this category yet.</p>
+          ) : (
+            <MediaStage
+              item={current}
+              index={safeIndex}
+              total={items.length}
+              transition={transition}
+              onNext={nextImage}
+              onPrev={prevImage}
+            />
+          )}
 
-        <div
-  ref={scope}
-  className="mx-auto flex min-h-0 w-full max-w-[1800px] flex-1 flex-col gap-3 px-6 pt-24 pb-20 md:px-16 md:pt-28"
->
-          <div data-gallery-in className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap gap-2">
-              {GALLERY_CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  data-cursor="view"
-                  onClick={() => setCategory(cat)}
-                  className={cx(
-                    "relative overflow-hidden rounded-full border px-4 py-1.5 text-xs font-semibold tracking-[0.15em] uppercase transition-all duration-300 hover:-translate-y-0.5",
-                    category === cat
-                      ? "border-brand-red bg-brand-red text-white shadow-[0_8px_24px_-6px_rgba(238,49,52,0.6)]"
-                      : "border-white/15 text-white/60 hover:border-white/30 hover:text-white"
-                  )}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex gap-1 rounded-full border border-white/15 bg-white/5 p-1">
-              <button
-                type="button"
-                onClick={() => setView("slideshow")}
-                className={cx(
-                  "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-wide uppercase transition-colors",
-                  view === "slideshow" ? "bg-brand-red text-white" : "text-white/60 hover:text-white"
-                )}
-              >
-                <FaImages className="h-3 w-3" /> Slideshow
-              </button>
-              {/* <button
-                type="button"
-                onClick={() => setView("grid")}
-                className={cx(
-                  "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-wide uppercase transition-colors",
-                  view === "grid" ? "bg-brand-red text-white" : "text-white/60 hover:text-white"
-                )}
-              >
-                <FaThLarge className="h-3 w-3" /> Grid
-              </button> */}
-            </div>
-          </div>
+          <BackButton data-gallery-in className="absolute top-6 left-6 z-20 lg:top-6 lg:left-6 xl:top-8 xl:left-8 3xl:top-10 3xl:left-10" />
 
           <div
             data-gallery-in
-            className="relative flex min-h-0 flex-1 flex-col rounded-2xl border border-white/10 bg-white/5 p-3 shadow-2xl backdrop-blur-xl md:p-4"
+            className="absolute top-16 left-1/2 z-20 flex max-w-[85%] -translate-x-1/2 flex-wrap justify-center gap-1.5 lg:top-16 xl:top-20 3xl:top-24"
           >
-            {!current ? (
-              <p className="m-auto text-sm text-white/40">No images in this category yet.</p>
-            ) : view === "slideshow" ? (
-              <>
-                <MediaStage
-                  item={current}
-                  index={safeIndex}
-                  total={items.length}
-                  direction={direction}
-                  transition={transition}
-                  fit="cover"
-                  onNext={nextImage}
-                  onPrev={prevImage}
-                  onToggleFullscreen={() => setFullscreen(true)}
-                />
-                <ThumbStrip items={items} activeId={current.id} onSelect={goTo} thumbRefs={thumbRefs} />
-              </>
-            ) : (
-              <GridView items={items} onOpen={openFullscreen} />
-            )}
+            {GALLERY_CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                data-cursor="view"
+                onClick={() => setCategory(cat)}
+                className={cx(
+                  "rounded-full border px-3 py-1 text-[10px] font-semibold tracking-[0.15em] uppercase backdrop-blur-sm transition-all duration-300",
+                  category === cat
+                    ? "border-brand-red bg-brand-red text-white shadow-[0_8px_20px_-6px_rgba(238,49,52,0.6)]"
+                    : "border-white/20 bg-black/20 text-white/70 hover:border-white/40 hover:text-white"
+                )}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          <div data-gallery-in className="absolute right-0 bottom-4 left-0 z-20 flex justify-center px-6 md:px-16">
+            <ThumbStrip items={items} activeId={current?.id} onSelect={goTo} thumbRefs={thumbRefs} stripRef={stripRef} />
           </div>
         </div>
 
-       <UtilityBar position="bottom-16 left-6 md:left-16" />
-        <FooterBar />
+        {/* <UtilityBar position="bottom-6 left-6 md:left-16" /> */}
       </div>
-
-      <AnimatePresence>
-        {fullscreen && current && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: prefersReducedMotion ? 0 : 0.25 }}
-            className="fixed inset-0 z-[100] flex flex-col bg-black/95 p-4 md:p-8"
-          >
-            <button
-              type="button"
-              onClick={() => setFullscreen(false)}
-              aria-label="Close fullscreen"
-              className="absolute top-5 right-5 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 backdrop-blur-sm hover:text-white"
-            >
-              <FaTimes />
-            </button>
-
-            <div className="flex min-h-0 flex-1 flex-col">
-              <MediaStage
-                item={current}
-                index={safeIndex}
-                total={items.length}
-                direction={direction}
-                transition={transition}
-                fit="contain"
-                fullscreen
-                onNext={nextImage}
-                onPrev={prevImage}
-                onToggleFullscreen={() => setFullscreen(false)}
-              />
-              <ThumbStrip items={items} activeId={current.id} onSelect={goTo} thumbRefs={thumbRefs} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </Layout>
   );
 }

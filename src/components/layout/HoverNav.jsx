@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   FaHome,
@@ -83,20 +83,25 @@ function TiltCard({ children, className, ...rest }) {
 // Home uses it to go back to the landing splash.
 function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [everActive, setEverActive] = useState(() => new Set([0]));
+  const hoverTimeoutRef = useRef(null);
+
+  // Debounced instead of switching on every mouseenter: sweeping the
+  // pointer down the list to reach a link fires mouseenter on every row
+  // it crosses. A short settle delay means only the row the pointer
+  // actually stops on triggers a switch.
+  function handleRowHover(index) {
+    clearTimeout(hoverTimeoutRef.current);
+    hoverTimeoutRef.current = setTimeout(() => {
+      setActiveIndex(index);
+      setEverActive((prev) => (prev.has(index) ? prev : new Set(prev).add(index)));
+    }, 80);
+  }
+
+  useEffect(() => () => clearTimeout(hoverTimeoutRef.current), []);
 
   return (
     <div className={cx("relative h-full w-full overflow-hidden", className)}>
-      {onBack && (
-        <button
-          onClick={onBack}
-          aria-label="Back to landing"
-          data-cursor="view"
-          className="absolute top-24 right-6 z-[60] flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-navy-900 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-white hover:shadow-[0_0_24px_rgba(255,255,255,0.5)] md:top-28 md:right-16 lg:top-24 lg:right-10 lg:h-10 lg:w-10 xl:top-28 xl:right-12 xl:h-11 xl:w-11 2xl:right-16 2xl:h-12 2xl:w-12 3xl:top-32 3xl:right-20 3xl:h-14 3xl:w-14 4xl:top-36 4xl:right-28 4xl:h-16 4xl:w-16"
-        >
-          <FaHome className="h-4 w-4 lg:h-4 lg:w-4 2xl:h-[18px] 2xl:w-[18px] 3xl:h-5 3xl:w-5 4xl:h-6 4xl:w-6" />
-        </button>
-      )}
-
       <div className="pointer-events-none absolute inset-0">
         {NAV_LINKS.map((link, i) => (
           <div
@@ -106,10 +111,16 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
               i === activeIndex ? "opacity-100" : "opacity-0",
             )}
           >
-            {/* Only mount the active preview — a live 3D canvas and a map
-                iframe sitting in every other page's stack would burn GPU/
-                network for no reason while off-screen. */}
-            {i === activeIndex && <HoverPreview path={link.path} />}
+            {/* Mounts on first hover and then stays mounted (just hidden via
+                the opacity above) rather than unmounting every time the
+                pointer leaves — the Showcase preview's WebGL canvas
+                (TowerViewer) pauses its render loop while hidden instead
+                (see `paused` there), which avoids both the GPU cost of
+                rendering off-screen AND the repeated create/dispose of a
+                WebGLRenderer that was exhausting the browser's context
+                budget and surfacing as "Context Lost" when this used to
+                unmount/remount on every hover in/out. */}
+            {everActive.has(i) && <HoverPreview path={link.path} active={i === activeIndex} />}
           </div>
         ))}
       </div>
@@ -169,7 +180,7 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
                   data-cursor-text={link.label}
                   tabIndex={interactive ? 0 : -1}
                   onClick={onNavigate}
-                  onMouseEnter={() => setActiveIndex(i)}
+                  onMouseEnter={() => handleRowHover(i)}
                   className={() =>
                     cx(
                       "sheen group relative flex items-center gap-3 overflow-hidden px-4 py-2.5 transition-colors",
@@ -238,7 +249,7 @@ function HoverNav({ interactive = true, onNavigate, onBack, className = "" }) {
           </div>
         </TiltCard>
 
-        <UtilityBar position={MENU_UTILITY_BAR_POSITION} />
+        <UtilityBar position={MENU_UTILITY_BAR_POSITION} onHomeClick={onBack} />
         </div>
       </div>
     </div>

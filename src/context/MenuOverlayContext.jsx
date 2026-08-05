@@ -10,11 +10,26 @@ const MenuOverlayContext = createContext(null);
 export function MenuOverlayProvider({ children }) {
   const [open, setOpen] = useState(false);
 
+  // Blur before closing, not after: MenuOverlay sets aria-hidden="true" on
+  // the overlay root as soon as `open` flips false, and the browser warns
+  // (and assistive tech breaks) if a descendant of an aria-hidden subtree
+  // still holds focus — which it does here, since closing is normally
+  // triggered by clicking a focusable row/button inside the overlay itself.
+  // Blurring synchronously in the same event, before the state update that
+  // drives the re-render, means focus is already gone by the time
+  // aria-hidden is applied.
+  function closeMenu() {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    setOpen(false);
+  }
+
   const value = useMemo(
     () => ({
       open,
       openMenu: () => setOpen(true),
-      closeMenu: () => setOpen(false),
+      closeMenu,
       toggleMenu: () => setOpen((v) => !v),
     }),
     [open]

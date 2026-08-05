@@ -8,10 +8,24 @@
     <meta name="description" content="North Garden City by JP Infra — 1, 2 & 3 BHK homes at Mira Road (E), Mumbai. Stand tall in the tallest towers of Mira Road." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Loaded non-blocking: rel="stylesheet" here would hold up first
+         paint on two sequential cross-origin round trips (googleapis, then
+         gstatic for the actual font files). preload fetches it in parallel
+         with everything else, and the onload swap applies it once it
+         arrives — text still renders immediately in the fallback font
+         either way, since the URL already carries display=swap. -->
     <link
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
-      rel="stylesheet"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
   </head>
   <body>
     <div id="root"></div>
