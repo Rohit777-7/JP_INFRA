@@ -12,6 +12,7 @@ const Showcase = lazy(() => import("../pages/Showcase"));
 const FloorPlan = lazy(() => import("../pages/FloorPlan"));
 const Location = lazy(() => import("../pages/Location"));
 const Brochure = lazy(() => import("../pages/Brochure"));
+const DroneView = lazy(() => import("../pages/DroneView"));
 
 function RouteFallback() {
   return <div className="h-screen w-full bg-navy-950" />;
@@ -28,6 +29,7 @@ function AppRoutes() {
           <Route path="/floor-plan" element={<FloorPlan />} />
           <Route path="/location" element={<Location />} />
           <Route path="/brochure" element={<Brochure />} />
+          <Route path="/drone-view" element={<DroneView />} />
         </Routes>
       </Suspense>
     </BrowserRouter>

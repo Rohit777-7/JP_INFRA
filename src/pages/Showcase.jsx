@@ -6,6 +6,7 @@ import Layout from "../components/layout/Layout";
 import FooterBar from "../components/layout/FooterBar";
 import UtilityBar from "../components/layout/UtilityBar";
 import BackButton from "../components/common/BackButton";
+import Button from "../components/ui/Button";
 import { SHOWCASE_VIDEOS } from "../data/videos";
 import { BRAND } from "../utils/constants";
 import { useGsap } from "../hooks/useAnimation";
@@ -113,17 +114,27 @@ function Showcase() {
 
           {/* Heading + video grid, centered in the remaining space */}
           <div className="flex min-h-0 flex-1 flex-col justify-center gap-4 lg:gap-5 xl:gap-6 2xl:gap-7 3xl:gap-8 4xl:gap-10">
-            <div className="max-w-2xl">
-              <h1
-                data-showcase-heading
-                className="font-display text-2xl text-white uppercase lg:text-3xl xl:text-4xl 2xl:text-5xl 3xl:text-6xl 4xl:text-7xl"
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div className="max-w-2xl">
+                <h1
+                  data-showcase-heading
+                  className="font-display text-2xl text-white uppercase lg:text-3xl xl:text-4xl 2xl:text-5xl 3xl:text-6xl 4xl:text-7xl"
+                >
+                  Showcase Videos
+                </h1>
+                <p data-showcase-desc className="mt-2 text-xs text-white/70 lg:text-sm xl:text-base 2xl:text-lg 3xl:text-lg 4xl:text-xl">
+                  Explore the brand, project walkthrough, and location videos of{" "}
+                  {BRAND.project}.
+                </p>
+              </div>
+
+              <Button
+                to="/drone-view"
+                variant="outline"
+                className="shrink-0 rounded-full"
               >
-                Showcase Videos
-              </h1>
-              <p data-showcase-desc className="mt-2 text-xs text-white/70 lg:text-sm xl:text-base 2xl:text-lg 3xl:text-lg 4xl:text-xl">
-                Explore the brand, project walkthrough, and location videos of{" "}
-                {BRAND.project}.
-              </p>
+                360° Drone View
+              </Button>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5 xl:gap-6 2xl:gap-8 3xl:gap-9 4xl:gap-12">

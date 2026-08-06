@@ -34,8 +34,45 @@ const FLOOR_HEIGHT = 0.28;
 const MAX_HEIGHT = Math.max(...TOWERS.map((t) => t.totalFloors)) * FLOOR_HEIGHT;
 const TARGET_Y = MAX_HEIGHT / 2;
 
+// Hoisted to a stable reference instead of an inline array literal on the
+// OrbitControls element below — R3F reapplies a `target` prop that changes
+// identity, so an inline `[0, TARGET_Y, 0]` would silently snap the orbit
+// centre back to this default on every re-render, fighting FloorFocus's
+// tween the moment a second floor is selected (TowerViewer re-renders
+// whenever the `targetFloor` prop changes). Same value as before, just a
+// reference that never changes.
+const DEFAULT_ORBIT_TARGET = [0, TARGET_Y, 0];
+
 const INTRO_END_POS = [0, TARGET_Y + 5, 13];
 const INTRO_START_POS = [0, TARGET_Y + 14, 24];
+
+// Smoothly moves OrbitControls' orbit centre to a given floor's height
+// whenever `floor` changes, for the Drone View's floor selector. Camera
+// position and orbit target are shifted by the same delta, which leaves the
+// vector between them — so the current zoom/rotation the user already set
+// with OrbitControls — untouched; the whole camera+target pair just glides
+// up or down together. controls.update() every tick keeps OrbitControls'
+// internal spherical state in sync, exactly like CameraIntro above.
+function FloorFocus({ controlsRef, floor }) {
+  const { camera } = useThree();
+
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (floor == null || !controls) return;
+
+    const floorY = floor * FLOOR_HEIGHT;
+    const deltaY = floorY - controls.target.y;
+    const tl = gsap.timeline({ defaults: { duration: 1.3, ease: "power3.inOut" } });
+    tl.to(controls.target, { y: floorY }, 0);
+    tl.to(camera.position, { y: camera.position.y + deltaY }, 0);
+    tl.eventCallback("onUpdate", () => controls.update());
+
+    return () => tl.kill();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [floor]);
+
+  return null;
+}
 
 // Eases the camera in from a wide establishing shot to the default framing
 // on mount, keeping OrbitControls' internal spherical state in sync via
@@ -72,7 +109,11 @@ function CameraIntro({ controlsRef, onComplete }) {
 // contexts in quick succession was exhausting the browser's WebGL context
 // budget and surfacing as "Context Lost"). Pausing keeps the context alive
 // but idle while hidden, so there's no ongoing GPU cost either.
-function TowerViewer({ quality, paused = false }) {
+//
+// targetFloor, if passed, is the Drone View's floor selector wiring — a
+// floor index (0 = ground) that FloorFocus above smoothly moves the camera
+// to. Omitted entirely by every other caller, so nothing changes for them.
+function TowerViewer({ quality, paused = false, targetFloor = null }) {
   const { tier: autoTier, prefersReducedMotion } = useDeviceTier();
   const tier = quality ?? autoTier;
   const highQuality = tier === "high";
@@ -110,6 +151,8 @@ function TowerViewer({ quality, paused = false }) {
           onComplete={() => setAutoRotate(true)}
         />
       )}
+
+      <FloorFocus controlsRef={controlsRef} floor={targetFloor} />
 
       <Suspense fallback={<SceneLoader />}>
         {highQuality && (
@@ -173,7 +216,7 @@ function TowerViewer({ quality, paused = false }) {
         dampingFactor={0.06}
         rotateSpeed={0.6}
         enablePan={false}
-        target={[0, TARGET_Y, 0]}
+        target={DEFAULT_ORBIT_TARGET}
         minDistance={5}
         maxDistance={16}
         maxPolarAngle={Math.PI / 2.1}
